@@ -1,0 +1,42 @@
+{
+  "description": "Other continuous CA rules: SmoothLife, BZ Reaction",
+  "category": "continuous",
+  "rule_family": "other_continuous",
+  "rules": [
+    {
+      "name": "smooth_life",
+      "rule_type": "smooth_life",
+      "num_states": 256,
+      "params": {"radius": 5, "b1": 0.257, "b2": 0.336, "d1": 0.365, "d2": 0.549, "sharpness": 0.028, "dt": 0.1},
+      "description": "Continuous Game of Life"
+    },
+    {
+      "name": "smooth_life_soft",
+      "rule_type": "smooth_life",
+      "num_states": 256,
+      "params": {"radius": 5, "b1": 0.28, "b2": 0.38, "d1": 0.42, "d2": 0.58, "sharpness": 0.04, "dt": 0.15},
+      "description": "Soft-edged SmoothLife"
+    },
+    {
+      "name": "bz_reaction",
+      "rule_type": "bz_reaction",
+      "num_states": 16,
+      "params": {"num_states": 16, "threshold": 10.0, "weight_excited": 1.0, "weight_refractory": -0.5},
+      "description": "Belousov-Zhabotinsky spiral waves"
+    },
+    {
+      "name": "bz_reaction_fast",
+      "rule_type": "bz_reaction",
+      "num_states": 8,
+      "params": {"num_states": 8, "threshold": 5.0, "weight_excited": 1.0, "weight_refractory": -0.3},
+      "description": "Fast BZ reaction"
+    },
+    {
+      "name": "bz_reaction_smooth",
+      "rule_type": "bz_reaction",
+      "num_states": 24,
+      "params": {"num_states": 24, "threshold": 12.0, "weight_excited": 1.0, "weight_refractory": -0.6},
+      "description": "Smooth gradient BZ reaction"
+    }
+  ]
+}

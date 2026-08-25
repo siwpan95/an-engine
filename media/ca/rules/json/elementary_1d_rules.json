@@ -1,0 +1,22 @@
+{
+  "description": "Wolfram Elementary 1D CA rules (0-255)",
+  "category": "continuous",
+  "rule_family": "elementary_1d",
+  "rules": [
+    {"name": "elementary_1d", "rule_number": 30, "description": "Chaotic (default)"},
+    {"name": "wolfram_30",  "rule_number": 30,  "description": "Chaotic, random number generation"},
+    {"name": "wolfram_90",  "rule_number": 90,  "description": "Sierpinski triangle"},
+    {"name": "wolfram_110", "rule_number": 110, "description": "Turing complete"},
+    {"name": "wolfram_184", "rule_number": 184, "description": "Traffic flow model"},
+    {"name": "wolfram_54",  "rule_number": 54,  "description": "Complex glider-like structures"},
+    {"name": "wolfram_22",  "rule_number": 22,  "description": "Growing triangles"},
+    {"name": "wolfram_126", "rule_number": 126, "description": "Fractal growth"},
+    {"name": "wolfram_150", "rule_number": 150, "description": "XOR pattern"},
+    {"name": "wolfram_45",  "rule_number": 45,  "description": "Growing inverted triangles"},
+    {"name": "wolfram_73",  "rule_number": 73,  "description": "Complex pattern"},
+    {"name": "wolfram_105", "rule_number": 105, "description": "Symmetrical growth"},
+    {"name": "wolfram_60",  "rule_number": 60,  "description": "Striped patterns"},
+    {"name": "wolfram_102", "rule_number": 102, "description": "Checkerboard"},
+    {"name": "wolfram_150", "rule_number": 150, "description": "Sierpinski-like XOR"}
+  ]
+}

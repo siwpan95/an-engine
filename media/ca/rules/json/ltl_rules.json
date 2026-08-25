@@ -1,0 +1,27 @@
+{
+  "description": "Larger than Life: extended-radius neighborhood CA",
+  "category": "continuous",
+  "rule_family": "larger_than_life",
+  "presets": {
+    "bugs":    {"radius": 5, "born_min": 34, "born_max": 45, "survive_min": 34, "survive_max": 58},
+    "bugs2":   {"radius": 3, "born_min": 21, "born_max": 31, "survive_min": 10, "survive_max": 21},
+    "brain":   {"radius": 4, "born_min": 33, "born_max": 45, "survive_min": 32, "survive_max": 62},
+    "sand":    {"radius": 2, "born_min": 10, "born_max": 16, "survive_min": 10, "survive_max": 16},
+    "cities":  {"radius": 3, "born_min": 18, "born_max": 26, "survive_min": 18, "survive_max": 26},
+    "worms":   {"radius": 7, "born_min": 74, "born_max": 87, "survive_min": 70, "survive_max": 98},
+    "bubbles": {"radius": 4, "born_min": 20, "born_max": 28, "survive_min": 40, "survive_max": 60},
+    "sea":     {"radius": 5, "born_min": 36, "born_max": 49, "survive_min": 30, "survive_max": 50},
+    "confetti":{"radius": 2, "born_min": 6,  "born_max": 12, "survive_min": 4,  "survive_max": 10}
+  },
+  "rules": [
+    {"name": "larger_than_life", "preset": "bugs", "description": "Large bug-like gliders"},
+    {"name": "ltl_bugs2", "preset": "bugs2", "description": "Smaller gliders"},
+    {"name": "ltl_brain", "preset": "brain", "description": "Brain-like structures"},
+    {"name": "ltl_sand", "preset": "sand", "description": "Flowing sand texture"},
+    {"name": "ltl_cities", "preset": "cities", "description": "City-like blocks"},
+    {"name": "ltl_worms", "preset": "worms", "description": "Worm-like creatures"},
+    {"name": "ltl_bubbles", "preset": "bubbles", "description": "Bubble-like expanding patterns"},
+    {"name": "ltl_sea", "preset": "sea", "description": "Sea waves at large scale"},
+    {"name": "ltl_confetti", "preset": "confetti", "description": "Small-scale confetti patterns"}
+  ]
+}
