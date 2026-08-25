@@ -1,4 +1,10 @@
 """
+[已退役 · 方案 A · 2026-08-25] 只读史料：numba JIT 核与配方公式存在语义发散
+（BZ/扩散），已不再被 CAPrimitive 引用。演化唯一真相 = 配方 JSON 的
+evolution.rule 公式。详见 docs《CA去重合并评估_2026-08-25》。保留一个月观察后删除。
+
+===== 以下为原实现，仅供参考 =====
+
 CA 演化核 — 使用 Numba JIT 编译优化性能
 
 这个模块提供高性能的 CA 演化函数，使用 Numba JIT 编译。
@@ -20,6 +26,8 @@ CA 演化核 — 使用 Numba JIT 编译优化性能
 
 import numpy as np
 import numba as nb
+
+__retired__ = True  # 方案 A（2026-08-25）：本模块已退役为只读史料
 
 
 # 预定义规则 ID

@@ -33,6 +33,50 @@ def test_media_recipes_count():
     assert n >= 4000
 
 
+def test_media_ca_formula_single_path():
+    """方案 A：CAPrimitive 不再引用 JIT 核，配方公式为唯一真相。"""
+    from pathlib import Path
+    from alloy.media.primitives import ca as ca_mod
+
+    assert ca_mod.HAS_NUMBA is False
+    src = Path(ca_mod.__file__).read_text(encoding="utf-8")
+    assert "from alloy.media.primitives.ca_kernel" not in src
+
+
+def test_media_ca_kernel_retired():
+    """方案 A：ca_kernel 已退役为只读史料。"""
+    from alloy.media.primitives import ca_kernel
+
+    assert getattr(ca_kernel, "__retired__", False) is True
+
+
+def test_media_ca_bz_formula_semantics():
+    """方案 A 修复目标：BZ 配方公式语义成为唯一真相。
+
+    BZ 公式 `1 if (c>0.5) else (0.5 if sum_n>1 else c)`：
+    - 活细胞（c>0.5）下一步恒为 1；
+    - 死细胞邻居和 >1 时变为 0.5，否则保持。
+    （旧 JIT 核对 BZ 用连续松弛模型，与公式不一致——已退役。）
+    """
+    import numpy as np
+    from alloy.media.formula_engine import FormulaEngine
+
+    eng = FormulaEngine()
+    rule = eng.compile("1 if (c > 0.5) else (0.5 if sum_n > 1 else c)", ["c", "sum_n"])
+    g = np.zeros((8, 8), dtype=np.float32)
+    g[2, 3] = 1.0
+    g[4, 3] = 1.0
+    sum_n = (
+        np.roll(g, 1, 0) + np.roll(g, -1, 0) + np.roll(g, 1, 1) + np.roll(g, -1, 1)
+        + np.roll(np.roll(g, 1, 0), 1, 1) + np.roll(np.roll(g, 1, 0), -1, 1)
+        + np.roll(np.roll(g, -1, 0), 1, 1) + np.roll(np.roll(g, -1, 0), -1, 1)
+    )
+    v = np.asarray(rule(c=g, sum_n=sum_n), dtype=np.float32)
+    assert v[2, 3] == 1.0        # 活细胞 → 1
+    assert v[3, 3] == 0.5        # 2 邻居的死细胞 → 0.5
+    assert v[0, 0] == 0.0        # 无邻居死细胞 → 保持 0
+
+
 def test_media_ca_engine():
     """CA 规则引擎（J2 S3 自 cellular_automaton 并入）：141 规则加载 + 演化。"""
     from alloy.media.ca import CellularAutomaton

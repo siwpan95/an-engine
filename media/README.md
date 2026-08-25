@@ -6,5 +6,6 @@
 - recipes/：CA 配方库（4972 个 JSON）。
 - **ca/（J2 S3）**：通用 CA 规则引擎（自 cellular_automaton 并入）：141 规则 = Life-like 63 / Multi-state 9 / Complex 11 / 连续 58（Gray-Scott 23 + Lenia 6 + LtL 9 + 1D 15 + 其他 5），JSON 规则库 + RuleManager + CellularAutomaton。
   - 与 primitives/ca_kernel.py 分层共存：ca_kernel 是 pywallpaper 4973 配方语料的兼容层（配方按内核名取核），ca/ 是规则族超集引擎；不互相替代。
+- **方案 A（2026-08-25 已执行）**：numba JIT 快路径退役（ca_kernel.py 转只读史料，`__retired__`），CAPrimitive 恒走配方公式路径（evolution.rule 为唯一真相）——修复 BZ/扩散 267 个配方双路径画面不一致；use_jit 配置兼容保留但不再改变行为。见《CA去重合并评估_2026-08-25》。
 - 装配：`preset_media` / profile `media`（dump-profile 显示 media=FormulaEngine 服务）。
 - 测试：test/test_media.py（5 项）。

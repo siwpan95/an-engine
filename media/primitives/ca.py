@@ -1,11 +1,11 @@
 """
-CA 原语 — 细胞自动机视觉效果 (v2 - 支持 Numba JIT)
+CA 原语 — 细胞自动机视觉效果（v3 · 方案 A：配方公式为唯一真相，JIT 已退役）
 
 集成 draw 的 CA 引擎，支持：
 1. 从 draw 的配方库加载 CA 配方（4973+ 个）
 2. 音频驱动 CA 演化（init_seed, steps_per_frame, color_speed 等）
 3. 实时渲染到 PIL Image
-4. 使用 Numba JIT 编译优化性能（预定义规则）
+4. 演化恒走配方公式（asteval）；numba JIT 快路径已退役（2026-08-25 方案 A，见《CA去重合并评估》）
 
 配置示例:
   {
@@ -43,17 +43,10 @@ except ImportError:
 from alloy.media.formula_engine import FormulaEngine
 from alloy.media.primitives import register_primitive, RenderPrimitive
 
-# 尝试导入 JIT 编译的核
+# 方案 A（2026-08-25）：numba JIT 快路径已退役——配方 JSON 的 evolution.rule
+# 公式为唯一演化真相（JIT 核对 BZ/扩散配方语义发散，详见《CA去重合并评估》）。
+# ca_kernel.py 保留为只读史料，不再被本模块引用。
 HAS_NUMBA = False
-try:
-    from alloy.media.primitives.ca_kernel import (
-        evolve_ca, evolve_game_of_life, evolve_bz_reaction,
-        RULE_GAME_OF_LIFE, RULE_BZ_REACTION
-    )
-    HAS_NUMBA = True
-    print("[CAPrimitive] Numba JIT 已启用，CA 演化性能将大幅提升")
-except ImportError as e:
-    print(f"[CAPrimitive] Numba 未安装，将使用 AST 公式计算（性能较低）: {e}")
 
 # 配方目录：pywallpaper 内置副本（自包含，随项目走；draw 已归档 2026-08-21）
 _DRAW_CANDIDATES = [
@@ -277,7 +270,7 @@ class CAPrimitive(RenderPrimitive):
         self.recipe_name = config.get('recipe', 'BZReaction')  # 默认使用 BZReaction
         self.grid_size = config.get('grid_size', [64, 64])
         self.steps_per_frame = config.get('steps_per_frame', 1)
-        self.use_jit = config.get('use_jit', True) and HAS_NUMBA  # 是否使用 JIT 编译的核
+        self.use_jit = config.get('use_jit', True)  # 兼容保留：方案 A 后不再改变行为
         
         # 颜色调制状态
         self.color_hue = 0.0    # 色相 (0-360)
@@ -314,18 +307,11 @@ class CAPrimitive(RenderPrimitive):
         # 总是编译初始化公式（初始化只执行一次，性能不是问题）
         self._compile_init_formula()
         
-        # 根据是否使用 JIT 选择演化方法
+        # 方案 A：恒走配方公式路径（JIT 快路径已退役）
         if self.use_jit:
-            # 使用 JIT 编译的核函数
-            from alloy.media.primitives.ca_kernel import get_kernel_for_recipe
-            self.kernel_func, self.rule_id = get_kernel_for_recipe(self.recipe_name)
-            self.use_ast_eval = False
-            print(f"[CAPrimitive] 使用 JIT 编译的核: {self.kernel_func.__name__}")
-        else:
-            # 使用 asteval 公式计算
-            self.use_ast_eval = True
-            self._compile_rule_formula()
-            print(f"[CAPrimitive] 使用 AST 公式计算")
+            print("[CAPrimitive] use_jit 已退役（方案 A），统一使用配方公式演化")
+        self.use_ast_eval = True
+        self._compile_rule_formula()
         
         # 总是编译颜色公式（颜色计算也需要）
         self._compile_color_formulas()
@@ -458,17 +444,9 @@ class CAPrimitive(RenderPrimitive):
                 print(f"[CAPrimitive] 音频调制错误: {e}")
     
     def _step(self):
-        """执行一步演化 — 根据配置选择 JIT 或 AST 方法"""
-        if self.use_jit:
-            self._step_jit()
-        else:
-            self._step_ast()
+        """执行一步演化 — 方案 A：恒走配方公式路径"""
+        self._step_ast()
     
-    def _step_jit(self):
-        """执行一步演化 — 使用 JIT 编译的核函数"""
-        # 调用 JIT 编译的核函数
-        self.kernel_func(self.grid)
-        self.t += 1
     
     def _step_ast(self):
         """执行一步演化 — 使用 asteval 公式计算"""

@@ -240,6 +240,9 @@ from alloy.test.test_media import (
     test_media_recipes_count,
     test_media_preset_assembly,
     test_media_ca_engine,
+    test_media_ca_formula_single_path,
+    test_media_ca_kernel_retired,
+    test_media_ca_bz_formula_semantics,
 )
 
 from alloy.test.test_context import (
@@ -497,12 +500,15 @@ all_tests = [
     test_saveload_snapshot_log_roundtrip,
     test_worldlog_audit_summary,
 
-    # media (5) — 媒体子系统（J2 S2/S3）
+    # media (8) — 媒体子系统（J2 S2/S3 + 方案 A）
     test_media_formula_engine,
     test_media_primitives_importable,
     test_media_recipes_count,
     test_media_preset_assembly,
     test_media_ca_engine,
+    test_media_ca_formula_single_path,
+    test_media_ca_kernel_retired,
+    test_media_ca_bz_formula_semantics,
 ]
 
 
