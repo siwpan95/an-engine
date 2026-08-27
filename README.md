@@ -1,6 +1,6 @@
 # alloy — 统一游戏引擎
 
-从 D:\allin 下 100+ 个项目中提炼的通用 Python 游戏引擎，融合 ECS 架构、事件总线、世界模型、卡牌战斗、AI 叙事、音频合成等能力。
+从 G:\ 下 100+ 个项目中提炼的通用 Python 游戏引擎（独立仓 siwpan/an-engine，本地 G:\repos\an-engine），融合 ECS 架构、事件总线、世界模型、卡牌战斗、AI 叙事、音频合成等能力。
 
 ## 架构分层
 
@@ -68,13 +68,13 @@ from alloy.systems.combat import CombatEngine, Card, CardDeck, Enemy
 
 运行示例：
 ```bash
-cd D:/allin && python alloy/example_quickstart.py
-cd D:/allin && python alloy/example_decision_ai.py
+cd G:/repos/an-engine && python alloy/example_quickstart.py
+cd G:/repos/an-engine && python alloy/example_decision_ai.py
 ```
 
 运行测试（292 个）：
 ```bash
-cd D:/allin && python -m alloy.test.run_all
+cd G:/repos/an-engine && python -m alloy.test.run_all
 ```
 
 ## 决策 / 行为范式（状态机 · 行为树 · 决策树 · 差分引擎）
