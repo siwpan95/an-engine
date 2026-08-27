@@ -6,7 +6,12 @@
 
     name  : str                 插件标识
     inject: list[str]           依赖的服务 key（装配期校验，决定加载顺序）
+    outer(ctx) -> None|disposer  可选：可重用外作用域，每个父上下文只执行一次
+                                 （共享状态/一次性注册；副作用挂父上下文）
     apply(ctx, config) -> None | disposer    注册能力；返回可调用对象则作为统一 disposer
+
+fork 双作用域：ctx.fork_install(plugin) 会把 outer 留在父作用域、
+apply 落进每次新建的 fork——同一插件多实例并存、逐实例独立回收。
 
 标准预设（preset）把引擎现有的 add_* 装配改为同一套注册原语：
 
