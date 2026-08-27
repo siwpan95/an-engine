@@ -14,6 +14,7 @@ fx/        粒子特效                          ← 依赖 numpy
 ai/        智能 (叙事/对话/AI生成)            ← 可选 requests/ollama
 ai/decision/ 决策范式 (状态机/行为树/决策树/差分引擎/ECS脑) ← 零依赖
 media/     媒体子系统 (公式引擎/效果原语/CA 规则引擎)  ← numpy 可选 asteval（J2 S2/S3 并入）
+trpg/      TRPG 规则内核 (自 D20 并入: D&D-GURPS 角色构建)  ← 零依赖
 test/      测试工具 (自定义框架)              ← 零依赖
 utils/     通用工具 (JSON/日志/字体/文本)      ← 零依赖
 ```
@@ -66,13 +67,29 @@ from alloy.systems import Inventory, PuzzleSystem, CommandParser
 from alloy.systems.combat import CombatEngine, Card, CardDeck, Enemy
 ```
 
+TRPG 角色构建（D20 规则内核，零依赖）：
+```python
+from alloy.trpg import Character, preset_trpg
+from alloy.core import Context
+
+c = Character()
+c.set_attribute("力量", 16)
+c.purchase_skill("近战攻击", 12)
+print(c.show_sheet())
+
+# 挂入引擎 Context（preset 风格，与其它预设共存）
+ctx = Context()
+preset_trpg(ctx)
+c2 = Character(ctx=ctx)
+```
+
 运行示例：
 ```bash
 cd G:/repos/an-engine && python alloy/example_quickstart.py
 cd G:/repos/an-engine && python alloy/example_decision_ai.py
 ```
 
-运行测试（292 个）：
+运行测试（484 个）：
 ```bash
 cd G:/repos/an-engine && python -m alloy.test.run_all
 ```
@@ -135,6 +152,24 @@ engine.advance(0.05)         # 按 1/60 固定步长切分多次 world.update，
 | `ai/decision/decision_tree.py` | 规则型决策树 DT：Condition/Switch/Action 路由 | 移植 |
 | `ai/decision/difference_engine.py` | 差分引擎：有限差分递推 + StateDiff + ReactiveTracker 响应式 | 移植 |
 | `ai/decision/brain.py` | ECS 粘合层：BlackboardComponent / BrainComponent / BrainSystem | 新增 |
+| `trpg/context.py` | TrpgContext 适配层：alloy Context+EventBus 上的 D20 兼容视图（属性代理/事件分发/Service 基类） | 并入 |
+| `trpg/character.py` | Character 公共门面：14 服务委托 + ctx.state 状态代理 + preset 装配 | 并入 |
+| `trpg/data.py` | 规则数据中枢（D&D 三宝书 + GURPS Basic Set 融合，单一事实来源） | 并入 |
+
+## TRPG 规则内核（D20 并入 · R2）
+
+`alloy.trpg` 是 D20（D&D-GURPS 变体角色构建器，siwpan 项目，原 G:\local\D20）规则内核的
+engine 化版本：14 个子系统（属性/装备/优缺点/天赋/技术/种族/背景/专长/技能/骰子/衍生/
+法术位/休整/战斗宏/角色卡）挂到 alloy 的可逆装配内核上，事件骑共享 EventBus，
+`preset_trpg(ctx)` 与其它标准预设同一套装配协议。
+
+- **并入口径**：D20 自带的 mini-Cordis 容器与 YAML loader 不进入引擎（保留在 D20 仓库）；
+  alloy 侧由 `TrpgContext` 适配层 + 代码预设替代；`condition` 子系统尚未接线（无状态字段、
+  未进装配），暂不并入。
+- **多角色**：一个宿主 Context 一个内核；每角色独立装配用 `ctx.fork(name)` + preset，
+  fork 销毁即整体回收。
+- **借鉴记账**：规则数据与 14 服务源码自 D20 迁移，行为契约由测试钉住（+105 项，
+  与 D20 原测试期望逐一对齐）；D20 后续经此内核反向重构。
 
 ## 本地字体加载
 

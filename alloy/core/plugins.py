@@ -21,6 +21,7 @@ apply 落进每次新建的 fork——同一插件多实例并存、逐实例独
     preset_combat(ctx)                   卡牌战斗                            （对应 add_combat）
     preset_audio(ctx, backend)           音频系统                            （对应 add_audio）
     preset_ai_brain(ctx, bus=None)       决策大脑（挂入 World 主循环）        （对应 add_ai_brain）
+    preset_trpg(ctx)                     TRPG 规则内核（自 D20 并入）          （D&D-GURPS 角色构建）
 
 预设之间用依赖声明组织：preset_world 缺 "world" 时自动先装 preset_core，
 依此类推——加载顺序由依赖决定，不再需要手工链式守卫。
@@ -40,6 +41,7 @@ __all__ = [
     "preset_combat",
     "preset_audio",
     "preset_ai_brain",
+    "preset_trpg",
     "STANDARD_PRESETS",
 ]
 
@@ -149,6 +151,19 @@ def preset_ai_brain(ctx: Context, event_bus: Any = None) -> Context:
     return ctx
 
 
+def preset_trpg(ctx: Context) -> Context:
+    """TRPG 规则内核层（自 D20 并入，R2）：D&D-GURPS 变体角色构建内核。
+
+    14 个子系统（属性/装备/优缺点/天赋/技术/种族/背景/专长/技能/骰子/衍生/
+    法术位/休整/战斗宏/角色卡）+ 数据中枢。缺 'bus' 时提供独立 EventBus；
+    'trpg' 服务 = TrpgContext 适配器，其 effect 栈挂宿主（注册即回滚）。
+    幂等：已装且存活则复用。装配实现见 alloy.trpg.preset。
+    """
+    from alloy.trpg import preset_trpg as _preset
+
+    return _preset(ctx)
+
+
 #: 标准预设索引（供 --dump-profile 与 preset 装配使用）
 STANDARD_PRESETS = {
     "core": preset_core,
@@ -157,4 +172,5 @@ STANDARD_PRESETS = {
     "combat": preset_combat,
     "audio": preset_audio,
     "ai_brain": preset_ai_brain,
+    "trpg": preset_trpg,
 }
