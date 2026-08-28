@@ -27,8 +27,8 @@ from typing import Any, Dict, List, Optional
 
 ENGINE_DIR = Path(__file__).resolve().parent
 
-#: 同步时忽略的目录（环境/版本控制/缓存，不属于引擎源码）
-PRUNE_DIRS = {".venv", "__pycache__", ".github", ".git", "saves"}
+#: 同步时忽略的目录（环境/版本控制/缓存/构建产物，不属于引擎源码）
+PRUNE_DIRS = {".venv", "__pycache__", ".github", ".git", "saves", "alloy.egg-info"}
 
 
 def _md5(path: Path) -> str:
