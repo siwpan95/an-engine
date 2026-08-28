@@ -14,6 +14,10 @@
   - `preset_trpg(ctx)`：标准预设（幂等，已装且存活即复用），注册进 `STANDARD_PRESETS["trpg"]`；`Character(..., *, ctx=None)` 支持注入宿主 Context，多角色用 `ctx.fork(name)` + preset 独立装配、随作用域整体回收；
   - D20 自带的 mini-Cordis 与 YAML loader 不进入引擎（保留在 D20 仓库）；condition 子系统尚未接线（无状态字段、未进装配）暂不并入；
   - 测试 +105（规则行为契约 + 内核装配/总线/fork/回收契约），套件 484 项。
+- **TRPG 骰子内核增强（R2 反向增强，moba_battle_platform 消费）**：
+  - 纯函数（roll_d20/roll_d100/roll_d6/roll_3d6/roll_weapon_damage）新增可选 `rng` 参数（默认全局 random，行为不变；模拟器/测试可注入独立随机源）；
+  - 新增通用 NdS 伤害骰 `roll_dice(count, size, rng=random)`（D&D 伤害骰；count<=0 返回 0、size<=0 收敛 1——与 moba_battle_platform 原语义一致，供其接入）；
+  - 测试 +5，套件 489 项。
 - **fork 双作用域语义**（Cordis fork / reusable 对齐，2026-08-27 深度审核后补）：
   - `Context.fork(name)`：命名子作用域，同名未销毁重复 fork 抛 `DuplicateScopeError`；销毁逆序回滚本层并自动从父上下文摘除（反复 fork/mount 不累积）；
   - `Context.fork_install(plugin, config, name=)`：插件 `outer(ctx)` 钩子按 name 在父作用域只执行一次（共享状态），`apply` 每次落独立 fork——同一插件多实例并存、逐实例独立回收；

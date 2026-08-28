@@ -29,7 +29,9 @@ from .data import (
     ADVANTAGES_LIBRARY, DISADVANTAGES_LIBRARY, WEAPON_DICE, FINESSE_WEAPONS,
     DEFAULT_STARTING_CP, DEFAULT_MAX_DISADVANTAGE_CP, ability_mod,
 )
-from .dice import roll_d20, roll_d100, roll_d6, roll_3d6, gurps_success_chance
+from .dice import (
+    gurps_success_chance, roll_3d6, roll_d6, roll_d20, roll_d100, roll_dice,
+)
 from .preset import MOUNT_ORDER, mount_trpg_services, preset_trpg
 
 __all__ = [
@@ -44,7 +46,8 @@ __all__ = [
     "TECHNIQUES", "TALENT_BONUS_GROUPS", "SKILL_CATEGORIES", "ARMOR_PROFICIENCY",
     "ADVANTAGES_LIBRARY", "DISADVANTAGES_LIBRARY", "WEAPON_DICE", "FINESSE_WEAPONS",
     "DEFAULT_STARTING_CP", "DEFAULT_MAX_DISADVANTAGE_CP", "ability_mod",
-    "roll_d20", "roll_d100", "roll_d6", "roll_3d6", "gurps_success_chance",
+    "roll_d20", "roll_d100", "roll_d6", "roll_3d6", "roll_dice",
+    "gurps_success_chance",
 ]
 
 # 继承 D20 的版本线（2.0.0 → 并入 alloy 记为 2.1.0）

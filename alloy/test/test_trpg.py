@@ -28,6 +28,7 @@ from alloy.trpg.dice import (
     roll_d100,
     roll_d20,
     roll_d6,
+    roll_dice,
     roll_weapon_damage,
 )
 
@@ -269,6 +270,44 @@ def test_trpg_weapon_damage():
     random.seed(0)
     _, desc = roll_weapon_damage("不存在的武器")
     assert desc == "1d4"
+
+
+# ---------------------------------------------------------------------------
+#  通用 NdS 伤害骰与 rng 注入（R2 反向增强：moba_battle_platform 同构原语）
+# ---------------------------------------------------------------------------
+def test_trpg_roll_dice_ranges():
+    for _ in range(100):
+        assert 1 <= roll_dice(2, 6) <= 12
+        assert 1 <= roll_dice(1, 4) <= 4
+
+
+def test_trpg_roll_dice_edge():
+    assert roll_dice(0, 6) == 0
+    assert roll_dice(-3, 6) == 0
+    assert roll_dice(2, 0) == 2   # size<=0 收敛为 1，两骰各 1
+
+
+def test_trpg_roll_dice_seeded():
+    random.seed(42)
+    a = roll_dice(3, 8)
+    random.seed(42)
+    b = roll_dice(3, 8)
+    assert a == b
+
+
+def test_trpg_rng_injection():
+    import random as _random
+    r1, r2 = _random.Random(7), _random.Random(7)
+    assert roll_d20(r1) == roll_d20(r2)
+    r3, r4 = _random.Random(7), _random.Random(7)
+    assert roll_dice(2, 12, r3) == roll_dice(2, 12, r4)
+
+
+def test_trpg_roll_d6_rng_injection():
+    from alloy.trpg.dice import roll_d6 as _d6
+    import random as _random
+    r1, r2 = _random.Random(5), _random.Random(5)
+    assert _d6(2, mod=3, rng=r1) == _d6(2, mod=3, rng=r2)
 
 
 # ---------------------------------------------------------------------------

@@ -2,8 +2,13 @@
 
 融合 D&D 的 d20/d100/d6 与 GURPS 的 3d6 roll-low 检定。
 纯函数可直接 import 使用、便于测试；DiceService 挂到 ``ctx.dice`` 提供实例方法。
+
+2026-08-27（R2 反向增强）：纯函数新增可选 ``rng`` 参数（默认全局 random，行为不变；
+模拟器/测试可注入独立随机源获得确定性），并新增通用 NdS 伤害骰 ``roll_dice``
+（moba_battle_platform 等 D&D 5e 消费方的同构原语）。
 """
 import random
+from typing import Any
 
 from .context import Service
 from .data import WEAPON_DICE
@@ -12,26 +17,37 @@ from .data import WEAPON_DICE
 # -----------------------------------------------------------------------------
 #  纯函数（可直接 import 使用，便于测试）
 # -----------------------------------------------------------------------------
-def roll_d20() -> int:
-    """掷一颗 20 面骰。"""
-    return random.randint(1, 20)
+def roll_d20(rng: Any = random) -> int:
+    """掷一颗 20 面骰。rng 可注入（默认全局 random）。"""
+    return rng.randint(1, 20)
 
 
-def roll_d100() -> int:
-    """掷一颗百分骰。"""
-    return random.randint(1, 100)
+def roll_d100(rng: Any = random) -> int:
+    """掷一颗百分骰。rng 可注入（默认全局 random）。"""
+    return rng.randint(1, 100)
 
 
-def roll_d6(num: int, mod: int = 0) -> tuple[list[int], int]:
-    """掷 num 颗 6 面骰 + 修正，返回 (各骰结果, 总和)。"""
-    rolls = [random.randint(1, 6) for _ in range(num)]
+def roll_d6(num: int, mod: int = 0, rng: Any = random) -> tuple[list[int], int]:
+    """掷 num 颗 6 面骰 + 修正，返回 (各骰结果, 总和)。rng 可注入。"""
+    rolls = [rng.randint(1, 6) for _ in range(num)]
     return rolls, sum(rolls) + mod
 
 
-def roll_3d6() -> tuple[list[int], int]:
-    """掷 3d6（GURPS 主检定骰），返回 (各骰结果, 总和)。"""
-    rolls = [random.randint(1, 6) for _ in range(3)]
+def roll_3d6(rng: Any = random) -> tuple[list[int], int]:
+    """掷 3d6（GURPS 主检定骰），返回 (各骰结果, 总和)。rng 可注入。"""
+    rolls = [rng.randint(1, 6) for _ in range(3)]
     return rolls, sum(rolls)
+
+
+def roll_dice(count: int, size: int, rng: Any = random) -> int:
+    """掷 count 颗 size 面骰（D&D 伤害骰），返回总和。
+
+    count<=0 返回 0；size<=0 收敛为 1。rng 可注入（模拟器确定性）。
+    与 moba_battle_platform 原 roll_dice 语义一致（R2 内核化）。
+    """
+    count = max(0, int(count))
+    size = max(1, int(size))
+    return sum(rng.randint(1, size) for _ in range(count))
 
 
 def gurps_success_chance(skill_level: int) -> int:
@@ -45,10 +61,10 @@ def gurps_success_chance(skill_level: int) -> int:
     return int(table.get(skill_level, 50))
 
 
-def roll_weapon_damage(weapon_name: str) -> tuple[list[int], str]:
-    """掷武器伤害骰，返回 (各骰结果, 骰子描述如 '1d8')。"""
+def roll_weapon_damage(weapon_name: str, rng: Any = random) -> tuple[list[int], str]:
+    """掷武器伤害骰，返回 (各骰结果, 骰子描述如 '1d8')。rng 可注入。"""
     num, die = WEAPON_DICE.get(weapon_name, (1, 4))
-    rolls = [random.randint(1, die) for _ in range(num)]
+    rolls = [rng.randint(1, die) for _ in range(num)]
     return rolls, f"{num}d{die}"
 
 
