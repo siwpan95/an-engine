@@ -1,4 +1,4 @@
-# Python
+﻿# Python
 __pycache__/
 *.py[cod]
 *.so
@@ -28,3 +28,6 @@ logs/
 # 系统
 .DS_Store
 Thumbs.db
+
+# 未跟踪产物/输出治理（2026-08-28）
+release/
