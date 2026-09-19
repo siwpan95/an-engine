@@ -3,7 +3,7 @@
 差分引擎（Difference Engine）
 ================================
 
-从 zhuangtaiji 项目移植并适配 alloy。灵感来自巴贝奇差分机。
+从 zhuangtaiji 项目移植并适配 allin_engine。灵感来自巴贝奇差分机。
 
 「差分机」（Difference Engine）由查尔斯·巴贝奇于 1822 年提出，利用
 **有限差分法** 将多项式求值转化为反复做加法——只需保存若干阶差分，

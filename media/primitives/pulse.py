@@ -19,7 +19,7 @@
 """
 import math
 import random
-from alloy.media.primitives import register_primitive, RenderPrimitive
+from allin_engine.media.primitives import register_primitive, RenderPrimitive
 
 
 @register_primitive('pulse')

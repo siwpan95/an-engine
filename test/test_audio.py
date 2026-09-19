@@ -5,7 +5,7 @@ test/test_audio.py — audio 层单元测试
 振荡器与包络 (需 numpy)。
 
 运行：
-    cd D:/allin && python -m alloy.test.test_audio
+    cd D:/allin && python -m allin_engine.test.test_audio
 """
 
 import sys
@@ -14,12 +14,12 @@ import math
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 
-from alloy.audio.synth import (
+from allin_engine.audio.synth import (
     SynthVoice, note_to_freq, SR, HAS_NUMPY,
     OscType, EnvShape, ADSRParams,
     oscillator, make_envelope, synthesize_voice,
 )
-from alloy.audio.music_gen import MusicPattern, generate_music_wav
+from allin_engine.audio.music_gen import MusicPattern, generate_music_wav
 
 
 # ══════════════════════════════════════════════════════════

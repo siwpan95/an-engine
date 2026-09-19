@@ -14,7 +14,7 @@ from typing import Optional
 import numpy as np
 from numpy.typing import NDArray
 
-from alloy.media.ca.rules.base import CARule, count_neighbours
+from allin_engine.media.ca.rules.base import CARule, count_neighbours
 
 # Try scipy for convolution
 try:

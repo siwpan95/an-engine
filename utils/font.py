@@ -39,7 +39,7 @@ from typing import Dict, List, Optional, Tuple, Union
 # ================================================================
 
 try:
-    from alloy.core.paths import get_fonts_dir
+    from allin_engine.core.paths import get_fonts_dir
 except Exception:  # pragma: no cover - 防御性兜底
     def get_fonts_dir() -> Path:  # type: ignore
         return Path(__file__).resolve().parent.parent / "fonts"

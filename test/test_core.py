@@ -4,7 +4,7 @@ test/test_core.py — core 层单元测试
 测试核心 ECS 架构和事件总线。
 
 运行：
-    cd D:/allin/alloy && python -m test.test_core
+    cd D:/allin/allin_engine && python -m test.test_core
 """
 
 import sys
@@ -12,7 +12,7 @@ import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 
-from alloy.core import World, Entity, Component, System, EventBus, EventTypes
+from allin_engine.core import World, Entity, Component, System, EventBus, EventTypes
 
 
 # ══════════════════════════════════════════════════════════
@@ -289,7 +289,7 @@ def test_event_bus_has_listeners():
 # ══════════════════════════════════════════════════════════
 
 if __name__ == "__main__":
-    from alloy.test.runner import TestRunner
+    from allin_engine.test.runner import TestRunner
 
     runner = TestRunner(timeout=5.0)
 

@@ -9,9 +9,9 @@ Supports 2-state, multi-state, complex, continuous, and 1D cellular automata.
 
 from __future__ import annotations
 
-from alloy.media.ca.rules.base import CARule, OuterTotalisticRule, count_neighbours, count_von_neumann_neighbours
-from alloy.media.ca.rules.multi_state_rules import SandpileRule
-from alloy.media.ca.rules.rule_manager import (
+from allin_engine.media.ca.rules.base import CARule, OuterTotalisticRule, count_neighbours, count_von_neumann_neighbours
+from allin_engine.media.ca.rules.multi_state_rules import SandpileRule
+from allin_engine.media.ca.rules.rule_manager import (
     RuleManager,
     RULES,
     total_count,

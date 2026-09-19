@@ -5,7 +5,7 @@ test/test_render.py — render 层单元测试
 Color 系统、FormulaEngine (纯 Python 模式)。
 
 运行：
-    cd D:/allin && python -m alloy.test.test_render
+    cd D:/allin && python -m allin_engine.test.test_render
 """
 
 import sys
@@ -13,12 +13,12 @@ import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 
-from alloy.render.console_renderer import (
+from allin_engine.render.console_renderer import (
     ConsoleRenderer, ANSI_FOREGROUND, ANSI_BACKGROUND,
     ANSI_RESET, CHAR_COLOR_MAP,
 )
-from alloy.world.map_data import MapData
-from alloy.render.color_system import (
+from allin_engine.world.map_data import MapData
+from allin_engine.render.color_system import (
     SolidColor, HSVFlowColor, EnergyColor, RainbowColor,
 )
 
@@ -327,6 +327,6 @@ def test_rainbow_color_reset():
 
 def test_formula_engine_import():
     """测试公式引擎可导入（纯 Python 回退模式）"""
-    from alloy.render.formula_engine import FormulaEngine
+    from allin_engine.render.formula_engine import FormulaEngine
     fe = FormulaEngine()
     assert fe is not None

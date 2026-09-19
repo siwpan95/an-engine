@@ -7,7 +7,7 @@
 """
 from PIL import ImageDraw
 
-from alloy.media.utils import parse_position, parse_size
+from allin_engine.media.utils import parse_position, parse_size
 
 
 class EngineEffect:
@@ -43,7 +43,7 @@ class EngineEffect:
         self._layers = []
         layers_config = self._params.get('layers', [])
         if isinstance(layers_config, list):
-            from alloy.media.primitives import create_primitive
+            from allin_engine.media.primitives import create_primitive
             for layer_cfg in layers_config:
                 try:
                     primitive = create_primitive(layer_cfg, width, height)

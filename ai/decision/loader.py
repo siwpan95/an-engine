@@ -3,14 +3,14 @@
 决策配置加载器（数据驱动）
 ============================
 
-把「声明式 JSON 配置」转化为可运行的决策引擎实例，让 alloy 的
+把「声明式 JSON 配置」转化为可运行的决策引擎实例，让 allin_engine 的
 行为树 / 状态机 / 决策树 可以像卡牌库、敌人库一样从数据文件加载。
 
 同时内置一份 **默认决策配置**（移植自 zhuangtaiji 的故障自愈行为树、
 请求路由决策树、设备层次状态机、差分预测器），无需额外文件即可试用。
 
 用法：
-    from alloy.ai.decision.loader import (
+    from allin_engine.ai.decision.loader import (
         default_brains_config, build_brain_from_spec, load_decision_config,
     )
 

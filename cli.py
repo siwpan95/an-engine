@@ -1,11 +1,11 @@
 """
-alloy CLI —— 装配自省与引擎副本同步
+allin_engine CLI —— 装配自省与引擎副本同步
 ===========================================
 
-    python -m alloy dump-profile [--json] [--project PATH]
+    python -m allin_engine dump-profile [--json] [--project PATH]
         装配本项目的 engine.yaml 并打印实际装配树（服务/配置覆盖/可选能力）。
 
-    python -m alloy sync <project> [--dry-run | --apply] [--reference PATH]
+    python -m allin_engine sync <project> [--dry-run | --apply] [--reference PATH]
         对比项目内联副本与引擎本体，生成/应用 engine.patch.yaml：
           - 项目独有文件    → 定制(added)，保留并记入 patch
           - 同名异内容      → 与 --reference（旧版引擎副本）比对：
@@ -28,7 +28,7 @@ from typing import Any, Dict, List, Optional
 ENGINE_DIR = Path(__file__).resolve().parent
 
 #: 同步时忽略的目录（环境/版本控制/缓存/构建产物，不属于引擎源码）
-PRUNE_DIRS = {".venv", "__pycache__", ".github", ".git", "saves", "alloy.egg-info"}
+PRUNE_DIRS = {".venv", "__pycache__", ".github", ".git", "saves", "allin_engine.egg-info"}
 
 
 def _md5(path: Path) -> str:
@@ -46,9 +46,9 @@ def _walk_files(root: Path) -> List[Path]:
 # ── dump-profile ─────────────────────────────────────
 
 def cmd_dump_profile(args) -> int:
-    from alloy.core.config_loader import load_file, ConfigSyntaxError
-    from alloy.core.context import Context
-    from alloy.core.profiles import PROFILES, PRESET_FUNCS, assemble_profile, build_report
+    from allin_engine.core.config_loader import load_file, ConfigSyntaxError
+    from allin_engine.core.context import Context
+    from allin_engine.core.profiles import PROFILES, PRESET_FUNCS, assemble_profile, build_report
 
     project = Path(args.project).resolve() if args.project else Path.cwd()
     cfg_file = project / "engine.yaml"
@@ -149,15 +149,15 @@ def _classify(project_engine: Path, reference: Optional[Path], exclude: List[str
 
 
 def cmd_sync(args) -> int:
-    from alloy.core.config_loader import dump_file, load_file
+    from allin_engine.core.config_loader import dump_file, load_file
 
     project = Path(args.project).resolve()
     if not project.is_dir():
         print(f"[错误] 项目目录不存在: {project}", file=sys.stderr)
         return 2
     candidates = [
-        project / "alloy",
-        project / "tools" / "alloy",
+        project / "allin_engine",
+        project / "tools" / "allin_engine",
         project / "allin_engine",        # 旧名（未改名的内联副本）
         project / "tools" / "allin_engine",
     ]
@@ -198,8 +198,8 @@ def cmd_sync(args) -> int:
         old_config = dict(old.get("config") or {})
 
     patch = {
-        "engine": "alloy",
-        "engine_version": getattr(sys.modules.get("alloy"), "__version__", "unknown"),
+        "engine": "allin_engine",
+        "engine_version": getattr(sys.modules.get("allin_engine"), "__version__", "unknown"),
         "synced_at": time.strftime("%Y-%m-%d %H:%M:%S"),
         "customized_files": result["customized"],
         "take_base": take_base,
@@ -238,7 +238,7 @@ def cmd_sync(args) -> int:
 
 def cmd_dump_log(args) -> int:
     """审计世界事件日志 / 快照+日志存档。"""
-    from alloy.core.world_log import WorldLog
+    from allin_engine.core.world_log import WorldLog
 
     path = Path(args.path).resolve()
     if not path.exists():
@@ -311,7 +311,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         sys.stdout.reconfigure(encoding="utf-8")
     except Exception:
         pass
-    parser = argparse.ArgumentParser(prog="python -m alloy", description="alloy 装配自省与副本同步")
+    parser = argparse.ArgumentParser(prog="python -m allin_engine", description="allin_engine 装配自省与副本同步")
     sub = parser.add_subparsers(dest="cmd")
 
     p_dump = sub.add_parser("dump-profile", help="装配并打印实际装配树")
@@ -324,7 +324,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     p_log.add_argument("--json", action="store_true", help="JSON 输出")
 
     p_sync = sub.add_parser("sync", help="对比内联副本与本体，生成/应用 engine.patch.yaml")
-    p_sync.add_argument("project", help="项目根目录（含内联 alloy 副本）")
+    p_sync.add_argument("project", help="项目根目录（含内联 allin_engine 副本）")
     p_sync.add_argument("--dry-run", action="store_true", help="只对比报告，不复制")
     p_sync.add_argument("--apply", action="store_true", help="复制升级文件（保留定制与冲突）")
     p_sync.add_argument("--reference", help="旧版引擎副本路径（用于区分'过期'与'定制'）")

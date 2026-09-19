@@ -9,7 +9,7 @@ test/test_font.py — 本地字体加载单元测试
   - 别名注册、列出、清空缓存
 
 运行：
-    cd D:/allin && python -m alloy.test.test_font
+    cd D:/allin && python -m allin_engine.test.test_font
 """
 
 import os
@@ -17,7 +17,7 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 
-from alloy.utils.font import (
+from allin_engine.utils.font import (
     discover_local_fonts,
     register_local_font,
     get_local_fonts_dir,

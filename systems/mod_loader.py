@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 # 复用 world/room.py 中定义的 MechanismAction
-from alloy.world.room import MechanismAction
+from allin_engine.world.room import MechanismAction
 
 
 # ---------------------------------------------------------------

@@ -16,7 +16,7 @@ Game Programming Patterns 的 Game Loop 章节）：
 `GameEngine` 已内置该循环（见 add_core / advance / run_real_time）。
 
 用法：
-    from alloy.core.game_loop import FixedTimestepLoop
+    from allin_engine.core.game_loop import FixedTimestepLoop
 
     loop = FixedTimestepLoop(update_fn, render_fn, fixed_dt=1/60)
     loop.advance(real_dt=0.05)        # 内部可能触发 3 次 update + 1 次 render

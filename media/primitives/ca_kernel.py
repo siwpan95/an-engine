@@ -11,7 +11,7 @@ CA 演化核 — 使用 Numba JIT 编译优化性能
 支持多种预定义规则，性能比纯 NumPy 实现快 10-100 倍。
 
 使用方法:
-    from alloy.media.primitives.ca_kernel import evolve_game_of_life
+    from allin_engine.media.primitives.ca_kernel import evolve_game_of_life
     
     # 创建网格
     grid = np.random.random((64, 64)).astype(np.float32)
@@ -20,7 +20,7 @@ CA 演化核 — 使用 Numba JIT 编译优化性能
     evolve_game_of_life(grid)
     
     # 或者使用通用的演化函数（根据规则 ID 选择）
-    from alloy.media.primitives.ca_kernel import evolve_ca
+    from allin_engine.media.primitives.ca_kernel import evolve_ca
     evolve_ca(grid, rule_id=0)  # 0 = Game of Life
 """
 

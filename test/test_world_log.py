@@ -20,9 +20,9 @@ import os
 import random
 import tempfile
 
-from alloy import GameEngine
-from alloy.core import EventBus, WorldLog
-from alloy.systems import SaveLoadManager
+from allin_engine import GameEngine
+from allin_engine.core import EventBus, WorldLog
+from allin_engine.systems import SaveLoadManager
 
 
 # ── 追加 / 快照点 ────────────────────────────────────
@@ -191,7 +191,7 @@ def test_engine_unload_log():
 # ── SaveLoadManager 快照+日志模式 ───────────────────
 
 def test_saveload_snapshot_log_roundtrip():
-    from alloy.world import GameState
+    from allin_engine.world import GameState
     with tempfile.TemporaryDirectory() as tmp:
         mgr = SaveLoadManager(tmp)
         log = WorldLog()
@@ -216,7 +216,7 @@ def test_worldlog_audit_summary():
     log.append("move", 1)
     log.append("move", 2)
     log.append("combat", "win")
-    from alloy.cli import _summarize_entries
+    from allin_engine.cli import _summarize_entries
     summary = _summarize_entries(log.entries())
     assert summary["by_type"] == {"combat": 1, "move": 2}
     assert len(summary["sample"]) == 3

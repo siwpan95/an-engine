@@ -8,8 +8,8 @@ import json
 import os
 import tempfile
 
-from alloy.core.data_library import DataLibrary
-from alloy.utils.json_loader import JSONLoader
+from allin_engine.core.data_library import DataLibrary
+from allin_engine.utils.json_loader import JSONLoader
 
 
 class _Rec:

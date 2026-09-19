@@ -8,8 +8,8 @@
     - 打字机效果输出
 
 使用示例:
-    from alloy.world.map_data import MapData
-    from alloy.render.console_renderer import ConsoleRenderer
+    from allin_engine.world.map_data import MapData
+    from allin_engine.render.console_renderer import ConsoleRenderer
 
     renderer = ConsoleRenderer(cols=80, rows=24)
     renderer.draw_text(0, 0, "Hello World", color="red")
@@ -24,7 +24,7 @@ import shutil
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple
 
-from alloy.world.map_data import MapData
+from allin_engine.world.map_data import MapData
 
 
 # ================================================================

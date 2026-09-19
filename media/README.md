@@ -1,4 +1,4 @@
-# alloy/media —— 媒体子系统（J2 S2/S3 并入，2026-08-25）
+# allin_engine/media —— 媒体子系统（J2 S2/S3 并入，2026-08-25）
 
 - 来源：pywallpaper/engine + recipes（媒体引擎能力层）；效果内容层（effects/ JSON）与应用层（systems/）留在 pywallpaper。
 - formula_engine.py：media 域公式引擎（自写解析器+回退求值）；与 render/formula_engine.py（asteval+模板，render 域）分层共存。

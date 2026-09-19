@@ -1,24 +1,24 @@
-"""alloy.trpg.context - TRPG 规则内核的装配上下文（D20 → alloy 适配层）
+"""allin_engine.trpg.context - TRPG 规则内核的装配上下文（D20 → allin_engine 适配层）
 
 并入背景（R2，2026-08-27）：
     D20（G:\\local\\D20，D&D-GURPS 变体角色构建器）自带一套 mini-Cordis
-    （Context + EventBus + effect 栈）。并入 alloy 后，规则内核不再自带容器：
+    （Context + EventBus + effect 栈）。并入 allin_engine 后，规则内核不再自带容器：
 
-    - 服务容器 / 可逆副作用：复用 alloy.core.context.Context（get/has/provide/
+    - 服务容器 / 可逆副作用：复用 allin_engine.core.context.Context（get/has/provide/
       effect/dispose 原语齐全，注册即回滚）；
-    - 事件：骑在 alloy.core.event_bus.EventBus 上——宿主已提供 'bus' 服务则共享
+    - 事件：骑在 allin_engine.core.event_bus.EventBus 上——宿主已提供 'bus' 服务则共享
       同一条总线（TRPG 事件与引擎事件同一名字空间），否则提供独立 EventBus；
-    - 本模块只保留 D20 语义中 alloy 缺失的两块：``ctx.<service>`` 属性代理与
+    - 本模块只保留 D20 语义中 allin_engine 缺失的两块：``ctx.<service>`` 属性代理与
       emit/waterfall/serial/parallel 的 D20 兼容分发，外加 Service 插件基类。
 
-事件语义对照（D20 → alloy）：
+事件语义对照（D20 → allin_engine）：
     emit      —— 观察型：bus.emit(name, data)，忽略返回值（D20 同）
     waterfall —— 中间件链：bus.waterfall(name, seed)，监听签名 (value, next)（D20 同）
-    serial    —— D20 为「按序执行 + 逐个 await 协程」，alloy 为「首个非 None 短路投票」。
+    serial    —— D20 为「按序执行 + 逐个 await 协程」，allin_engine 为「首个非 None 短路投票」。
                  内核未用 serial，此处保留 D20 原语义（直接遍历 bus.listeners 实现）
-    parallel  —— alloy 无此语义，保留 D20 原语义（asyncio.gather 扇出）
+    parallel  —— allin_engine 无此语义，保留 D20 原语义（asyncio.gather 扇出）
 
-生命周期：TrpgContext 构造时把 self.dispose 挂到宿主 alloy Context 的 effect 栈
+生命周期：TrpgContext 构造时把 self.dispose 挂到宿主 allin_engine Context 的 effect 栈
 （注册即回滚），宿主销毁时自动回收；Character 也可显式 dispose()。
 
 与 D20 mini-Cordis 的刻意差异：
@@ -31,8 +31,8 @@ from __future__ import annotations
 import asyncio
 from typing import Any, Callable, Optional
 
-from alloy.core.context import Context
-from alloy.core.event_bus import EventBus
+from allin_engine.core.context import Context
+from allin_engine.core.event_bus import EventBus
 
 __all__ = ["TrpgContext", "Service", "CordisError"]
 
@@ -44,7 +44,7 @@ class CordisError(Exception):
 class Service:
     """能力单位基类。子类声明 ``inject`` 依赖列表与 ``name``。
 
-    协议与 alloy 插件同构（name/inject/apply），构造签名保持 D20 的
+    协议与 allin_engine 插件同构（name/inject/apply），构造签名保持 D20 的
     ``(ctx, config)`` 形态，由 TrpgContext.mount 装配。
     """
 
@@ -63,10 +63,10 @@ class Service:
 
 
 class TrpgContext:
-    """TRPG 服务容器：alloy Context 的 D20 兼容视图。
+    """TRPG 服务容器：allin_engine Context 的 D20 兼容视图。
 
     - 服务以稳定 key 挂到 ctx（``ctx.attributes`` / ``ctx.get("attributes")``）；
-    - 事件经 alloy EventBus 分发（与宿主共享一条总线）；
+    - 事件经 allin_engine EventBus 分发（与宿主共享一条总线）；
     - ``ctx.state`` 持有宿主（Character）的可变状态，服务读写它；
     - 构造即挂到宿主 Context 的 effect 栈：宿主销毁自动回收（注册即回滚）。
     """
@@ -85,7 +85,7 @@ class TrpgContext:
         self._listener_disposers: list[Callable[[], None]] = []
         host.effect(self.dispose)
 
-    # ---- 服务注册（委托 alloy Context） ----
+    # ---- 服务注册（委托 allin_engine Context） ----
     def provide(self, name: str, service: Any, *, dispose: Optional[Callable[[], Any]] = None,
                 replace: bool = False) -> Any:
         return self._ctx.provide(name, service, dispose=dispose, replace=replace)
@@ -121,7 +121,7 @@ class TrpgContext:
             return ctx.get(name)
         raise AttributeError(name)
 
-    # ---- 事件（骑 alloy EventBus；签名与 D20 兼容） ----
+    # ---- 事件（骑 allin_engine EventBus；签名与 D20 兼容） ----
     def on(self, name: str, fn: Callable) -> Callable[[], None]:
         """注册监听，返回 disposer。
 
@@ -145,13 +145,13 @@ class TrpgContext:
     def waterfall(self, name: str, seed: Any, *args: Any) -> Any:
         """变换/包装型：每个监听 ``fn(current, next)`` 返回新 current，按序链式。
 
-        不调用 ``next()`` 即短路。alloy EventBus 的链签名不含额外参数，
+        不调用 ``next()`` 即短路。allin_engine EventBus 的链签名不含额外参数，
         故额外 args 直接报错（fail loud；内核现有钩子均为 2 参形态）。
         """
         if args:
             raise CordisError(
                 f"waterfall('{name}') 携带额外参数 {args!r}："
-                "alloy EventBus 链签名为 (value, next)，不支持透传额外参数")
+                "allin_engine EventBus 链签名为 (value, next)，不支持透传额外参数")
         return self._bus.waterfall(name, seed)
 
     def serial(self, name: str, *args: Any) -> None:

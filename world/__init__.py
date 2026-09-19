@@ -1,5 +1,5 @@
 """
-alloy.world — 游戏世界模块。
+allin_engine.world — 游戏世界模块。
 
 提供游戏世界核心数据模型：
   - 游戏状态管理 (GameState, PlayerState, ImageryNetwork)

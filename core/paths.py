@@ -8,7 +8,7 @@
 - 可写目录（saves/logs）使用用户数据目录
 
 用法：
-    from alloy.core.paths import ROOT, get_assets_dir
+    from allin_engine.core.paths import ROOT, get_assets_dir
 
     sprite_path = get_assets_dir() / "sprites" / "player.png"
 """
@@ -21,7 +21,7 @@ from pathlib import Path
 
 
 def _get_package_root() -> Path:
-    """返回 alloy 包所在的目录。
+    """返回 allin_engine 包所在的目录。
 
     优先级：
     1. 打包环境（PyInstaller / Nuitka）：sys._MEIPASS
@@ -41,21 +41,21 @@ def _get_package_root() -> Path:
     # 优先使用 importlib.resources（兼容 pip install）
     try:
         from importlib.resources import files
-        pkg_path = files("alloy")
+        pkg_path = files("allin_engine")
         if pkg_path.is_dir():
-            return Path(str(pkg_path)).parent  # 项目根（alloy 的父目录）
+            return Path(str(pkg_path)).parent  # 项目根（allin_engine 的父目录）
     except Exception:
         pass
 
-    # 开发环境回退：core/paths.py → alloy/ → 项目根
+    # 开发环境回退：core/paths.py → allin_engine/ → 项目根
     return Path(__file__).resolve().parent.parent.parent
 
 
 def _get_user_data_dir() -> Path:
     """返回用户数据目录（跨平台）。
 
-    - Windows: %APPDATA%/alloy
-    - Linux/macOS: ~/.local/share/alloy 或 ~/.alloy
+    - Windows: %APPDATA%/allin_engine
+    - Linux/macOS: ~/.local/share/allin_engine 或 ~/.allin_engine
     """
     # 环境变量覆盖
     env_data = os.environ.get("ALLIN_USER_DATA")
@@ -64,10 +64,10 @@ def _get_user_data_dir() -> Path:
 
     if sys.platform == "win32":
         base = os.environ.get("APPDATA", os.path.expanduser("~"))
-        return Path(base) / "alloy"
+        return Path(base) / "allin_engine"
     else:
         xdg = os.environ.get("XDG_DATA_HOME", os.path.expanduser("~/.local/share"))
-        return Path(xdg) / "alloy"
+        return Path(xdg) / "allin_engine"
 
 
 # ── 路径常量 ──────────────────────────────────────────
@@ -75,7 +75,7 @@ def _get_user_data_dir() -> Path:
 ROOT: Path = _get_package_root()
 """项目 / 资源根目录。"""
 
-ENGINE_DIR: Path = ROOT / "alloy"
+ENGINE_DIR: Path = ROOT / "allin_engine"
 """引擎根目录。"""
 
 CORE_DIR: Path = ENGINE_DIR / "core"
@@ -109,13 +109,25 @@ def get_assets_dir() -> Path:
 def get_fonts_dir() -> Path:
     """返回本地字体目录（fonts/）。
 
-    用于存放随包分发的字体文件（.ttf/.otf/.ttc/.woff 等）。
-    路径解析兼容开发环境、pip install 与 PyInstaller 打包：
-        1. <包>/fonts    （首选，随包分发）
-        2. <资源根>/fonts  （开发环境回退）
+    本地字体体积大（单个约 50MB）且涉及字体授权，**不随包分发**，按需自备。
+    查找顺序：
+        1. ALLIN_FONTS_DIR 环境变量（显式指定，最高优先）
+        2. <包>/fonts          （开发环境；或用户自行放入包目录）
+        3. <资源根>/fonts      （开发环境回退）
+        4. <用户数据目录>/fonts（跨平台可写，推荐的存放位置；不存在则创建）
     若目录不存在也返回预期路径（调用方负责判断文件是否存在）。
     """
-    return _get_readable_dir("fonts")
+    env = os.environ.get("ALLIN_FONTS_DIR")
+    if env:
+        return Path(env)
+    pkg_dir = ENGINE_DIR / "fonts"
+    if pkg_dir.exists():
+        return pkg_dir
+    root_dir = ROOT / "fonts"
+    if root_dir.exists():
+        return root_dir
+    user_dir = _get_writable_dir("fonts")
+    return user_dir
 
 
 def get_config_dir() -> Path:

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-alloy.ai.decision — 决策/行为范式子包
+allin_engine.ai.decision — 决策/行为范式子包
 ==============================================
 
 从 zhuangtaiji 项目集成并增强的多范式决策引擎，覆盖游戏 AI 与状态管理的

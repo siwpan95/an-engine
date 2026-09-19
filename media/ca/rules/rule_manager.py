@@ -20,21 +20,21 @@ import json
 from pathlib import Path
 from typing import Any
 
-from alloy.media.ca.rules.base import CARule, OuterTotalisticRule
-from alloy.media.ca.rules.complex_rules import (
+from allin_engine.media.ca.rules.base import CARule, OuterTotalisticRule
+from allin_engine.media.ca.rules.complex_rules import (
     LangtonsLoopRule,
     SnowflakeRule,
     CyclicCARule,
     HodgepodgeRule,
 )
-from alloy.media.ca.rules.multi_state_rules import (
+from allin_engine.media.ca.rules.multi_state_rules import (
     BriansBrainRule,
     WireworldRule,
     ForestFireRule,
     CrystalGrowthRule,
     SandpileRule,
 )
-from alloy.media.ca.rules.continuous_rules import (
+from allin_engine.media.ca.rules.continuous_rules import (
     GrayScottRule,
     LeniaRule,
     LargerThanLifeRule,

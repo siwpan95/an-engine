@@ -40,8 +40,8 @@ except ImportError:
     HAS_PIL = False
     print("[CAPrimitive] 警告：未安装 PIL，渲染功能将不可用")
 
-from alloy.media.formula_engine import FormulaEngine
-from alloy.media.primitives import register_primitive, RenderPrimitive
+from allin_engine.media.formula_engine import FormulaEngine
+from allin_engine.media.primitives import register_primitive, RenderPrimitive
 
 # 方案 A（2026-08-25）：numba JIT 快路径已退役——配方 JSON 的 evolution.rule
 # 公式为唯一演化真相（JIT 核对 BZ/扩散配方语义发散，详见《CA去重合并评估》）。

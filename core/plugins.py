@@ -32,7 +32,7 @@ from __future__ import annotations
 
 from typing import Any, Callable, Optional
 
-from alloy.core.context import Context
+from allin_engine.core.context import Context
 
 __all__ = [
     "preset_core",
@@ -56,10 +56,10 @@ def preset_core(ctx: Context, update_cb: Optional[Callable[[float], None]] = Non
     """核心层：World + EventBus + FixedTimestepLoop + WorldLog。幂等：已装则复用。"""
     if ctx.has("world") and ctx.has("bus") and ctx.has("loop") and ctx.has("log"):
         return ctx
-    from alloy.core.ecs import World
-    from alloy.core.event_bus import EventBus
-    from alloy.core.game_loop import FixedTimestepLoop
-    from alloy.core.world_log import WorldLog
+    from allin_engine.core.ecs import World
+    from allin_engine.core.event_bus import EventBus
+    from allin_engine.core.game_loop import FixedTimestepLoop
+    from allin_engine.core.world_log import WorldLog
 
     if not ctx.has("world"):
         ctx.provide("world", World())
@@ -78,7 +78,7 @@ def preset_world(ctx: Context) -> Context:
         preset_core(ctx)
     if ctx.has("state"):
         return ctx
-    from alloy.world import GameState
+    from allin_engine.world import GameState
     ctx.provide("state", GameState())
     return ctx
 
@@ -91,8 +91,8 @@ def preset_systems(ctx: Context) -> Context:
         preset_world(ctx)
     if ctx.has("inventory") and ctx.has("puzzles") and ctx.has("commands") and ctx.has("saves"):
         return ctx
-    from alloy.systems import Inventory, PuzzleSystem, CommandHandler, SaveLoadManager
-    from alloy.core.paths import get_save_dir
+    from allin_engine.systems import Inventory, PuzzleSystem, CommandHandler, SaveLoadManager
+    from allin_engine.core.paths import get_save_dir
 
     bus = ctx.get("bus")
     inventory = Inventory()
@@ -114,7 +114,7 @@ def preset_combat(ctx: Context) -> Context:
         preset_world(ctx)
     if ctx.has("card_library") and ctx.has("enemy_library") and ctx.has("combat"):
         return ctx
-    from alloy.systems.combat import CardLibrary, EnemyLibrary, CombatEngine
+    from allin_engine.systems.combat import CardLibrary, EnemyLibrary, CombatEngine
 
     card_library = CardLibrary()
     enemy_library = EnemyLibrary()
@@ -129,7 +129,7 @@ def preset_audio(ctx: Context, backend: str = "pygame") -> Context:
     """音频系统。backend: 'pygame' | 'bloodmusic'。"""
     if ctx.has("audio"):
         return ctx
-    from alloy.audio import AudioSystem
+    from allin_engine.audio import AudioSystem
 
     audio = AudioSystem(backend=backend)
     ctx.provide("audio", audio, dispose=_shutdown_disposer(audio))
@@ -142,7 +142,7 @@ def preset_ai_brain(ctx: Context, event_bus: Any = None) -> Context:
         preset_core(ctx)
     if ctx.has("brain"):
         return ctx
-    from alloy.ai import BrainSystem
+    from allin_engine.ai import BrainSystem
 
     bus = event_bus if event_bus is not None else ctx.get("bus")
     brain = BrainSystem(event_bus=bus)
@@ -157,9 +157,9 @@ def preset_trpg(ctx: Context) -> Context:
     14 个子系统（属性/装备/优缺点/天赋/技术/种族/背景/专长/技能/骰子/衍生/
     法术位/休整/战斗宏/角色卡）+ 数据中枢。缺 'bus' 时提供独立 EventBus；
     'trpg' 服务 = TrpgContext 适配器，其 effect 栈挂宿主（注册即回滚）。
-    幂等：已装且存活则复用。装配实现见 alloy.trpg.preset。
+    幂等：已装且存活则复用。装配实现见 allin_engine.trpg.preset。
     """
-    from alloy.trpg import preset_trpg as _preset
+    from allin_engine.trpg import preset_trpg as _preset
 
     return _preset(ctx)
 

@@ -18,7 +18,7 @@ from enum import Enum, auto
 from pathlib import Path
 from typing import Any, Optional
 
-from alloy.core.data_library import DataLibrary
+from allin_engine.core.data_library import DataLibrary
 
 
 # ---------------------------------------------------------------

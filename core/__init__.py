@@ -1,5 +1,5 @@
 """
-alloy.core — 统一游戏引擎核心层
+allin_engine.core — 统一游戏引擎核心层
 ==========================================
 
 提供 ECS 架构、事件总线、全局配置和资源路径管理。
@@ -11,17 +11,17 @@ alloy.core — 统一游戏引擎核心层
     - paths:      资源路径工具
 
 用法：
-    from alloy.core import World, Entity, Component, System
-    from alloy.core import EventBus, EventTypes
-    from alloy.core.config import CELL, COLS, ROWS
-    from alloy.core.paths import ROOT, get_assets_dir
+    from allin_engine.core import World, Entity, Component, System
+    from allin_engine.core import EventBus, EventTypes
+    from allin_engine.core.config import CELL, COLS, ROWS
+    from allin_engine.core.paths import ROOT, get_assets_dir
 """
 
 from __future__ import annotations
 
 # ── ECS ────────────────────────────────────────────────
 
-from alloy.core.ecs import (
+from allin_engine.core.ecs import (
     # Entity & Component
     Entity,
     Component,
@@ -35,11 +35,11 @@ from alloy.core.ecs import (
 )
 
 # ── 可序列化 World ──────────────────────────────────
-from alloy.core.world_serial import SerializableWorld
+from allin_engine.core.world_serial import SerializableWorld
 
 # ── 事件总线 ──────────────────────────────────────────
 
-from alloy.core.event_bus import (
+from allin_engine.core.event_bus import (
     EventBus,
     EventTypes,
     EventHandler,
@@ -48,11 +48,11 @@ from alloy.core.event_bus import (
 
 # ── 序列化 & 数据驱动 ────────────────────────────────
 
-from alloy.core.serializable import Serializable, Snapshotable
-from alloy.core.data_library import DataLibrary
+from allin_engine.core.serializable import Serializable, Snapshotable
+from allin_engine.core.data_library import DataLibrary
 
 # ── 可选依赖探测 ────────────────────────────────────
-from alloy.core.deps import (
+from allin_engine.core.deps import (
     MissingDependencyError,
     feature_flags,
     has,
@@ -62,7 +62,7 @@ from alloy.core.deps import (
 
 # ── 游戏循环（固定时间步长） ─────────────────────────
 
-from alloy.core.game_loop import (
+from allin_engine.core.game_loop import (
     FixedTimestepLoop,
     GameLoopStats,
 )
@@ -70,7 +70,7 @@ from alloy.core.game_loop import (
 
 # ── 可逆装配内核（Context：注册即回滚） ──────────────
 
-from alloy.core.context import (
+from allin_engine.core.context import (
     Context,
     DuplicateServiceError,
 )
@@ -78,7 +78,7 @@ from alloy.core.context import (
 
 # ── 世界事件日志（WorldLog：日志即事实源） ───────────
 
-from alloy.core.world_log import (
+from allin_engine.core.world_log import (
     WorldLog,
 )
 

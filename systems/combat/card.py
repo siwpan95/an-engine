@@ -22,7 +22,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Optional
 
-from alloy.core.data_library import DataLibrary
+from allin_engine.core.data_library import DataLibrary
 
 
 # ---------------------------------------------------------------

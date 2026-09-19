@@ -1,5 +1,5 @@
 """
-alloy 快速上手示例
+allin_engine 快速上手示例
 =========================
 
 演示统一引擎的核心用法：ECS架构、事件驱动、世界模型、战斗系统。
@@ -7,11 +7,11 @@ alloy 快速上手示例
 
 import sys
 import os
-# 将 alloy 的父目录加入 sys.path，使 alloy 包可被导入
+# 将 allin_engine 的父目录加入 sys.path，使 allin_engine 包可被导入
 _PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path.insert(0, _PROJECT_ROOT)
 
-from alloy import (
+from allin_engine import (
     # 核心
     GameEngine, World, Entity, Component, System, EventBus, EventTypes,
 
@@ -158,7 +158,7 @@ def example_world():
     print(f"  敌人位置 (10,3): {map_data.get(10, 3)}")
 
     # 物品系统
-    from alloy.world.item import create_weapon, create_consumable, create_key as make_key
+    from allin_engine.world.item import create_weapon, create_consumable, create_key as make_key
 
     sword = create_weapon("iron_sword", "铁剑", stats={"atk": 5}, description="一把普通的铁剑")
     potion = create_consumable("heal_potion", "回复药", effects={"hp": 30})
@@ -351,7 +351,7 @@ def example_game_engine():
 
 if __name__ == "__main__":
     print("\n" + "=" * 60)
-    print("  alloy 统一引擎 — 快速上手示例")
+    print("  allin_engine 统一引擎 — 快速上手示例")
     print("=" * 60 + "\n")
 
     example_ecs()

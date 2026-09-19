@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-alloy.media.ca —— CA 规则引擎（J2 S3，2026-08-25）
+allin_engine.media.ca —— CA 规则引擎（J2 S3，2026-08-25）
 
 自 cellular_automaton 并入：141 规则（Life-like 63 / Multi-state 9 / Complex 11 /
 连续 58：Gray-Scott/Lenia/LtL/1D/其他），JSON 规则库 + 统一 RuleManager。
@@ -9,9 +9,9 @@ alloy.media.ca —— CA 规则引擎（J2 S3，2026-08-25）
 （evolution.rule 为唯一真相，ca_kernel 退役为史料）；本包是整数态规则引擎超集。
 """
 
-from alloy.media.ca.automaton import CellularAutomaton
-from alloy.media.ca.rules import RULES
-from alloy.media.ca.rules.rule_manager import RuleManager
+from allin_engine.media.ca.automaton import CellularAutomaton
+from allin_engine.media.ca.rules import RULES
+from allin_engine.media.ca.rules.rule_manager import RuleManager
 
 __all__ = [
     "CellularAutomaton",

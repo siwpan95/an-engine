@@ -9,8 +9,8 @@
 ### Added
 
 - **TRPG 规则内核并入（R2，自 D20）**：
-  - `alloy/trpg/`：D20（D&D-GURPS 变体角色构建器，G:\local\D20）的 14 个子系统（属性/装备/优缺点/天赋/技术/种族/背景/专长/技能/骰子/衍生/法术位/休整/战斗宏/角色卡）+ 数据中枢 `data.py`（融合 D&D 三宝书与 GURPS Basic Set，单一事实来源）；
-  - `TrpgContext`：alloy `Context` + `EventBus` 上的 D20 兼容适配层（`ctx.<service>` 属性代理、emit/waterfall/serial/parallel 分发、Service 插件基类）；事件骑宿主共享总线，构造即挂宿主 effect 栈（注册即回滚），dispose 逆序退订全部事件并清空服务；
+  - `allin_engine/trpg/`：D20（D&D-GURPS 变体角色构建器，G:\local\D20）的 14 个子系统（属性/装备/优缺点/天赋/技术/种族/背景/专长/技能/骰子/衍生/法术位/休整/战斗宏/角色卡）+ 数据中枢 `data.py`（融合 D&D 三宝书与 GURPS Basic Set，单一事实来源）；
+  - `TrpgContext`：allin_engine `Context` + `EventBus` 上的 D20 兼容适配层（`ctx.<service>` 属性代理、emit/waterfall/serial/parallel 分发、Service 插件基类）；事件骑宿主共享总线，构造即挂宿主 effect 栈（注册即回滚），dispose 逆序退订全部事件并清空服务；
   - `preset_trpg(ctx)`：标准预设（幂等，已装且存活即复用），注册进 `STANDARD_PRESETS["trpg"]`；`Character(..., *, ctx=None)` 支持注入宿主 Context，多角色用 `ctx.fork(name)` + preset 独立装配、随作用域整体回收；
   - D20 自带的 mini-Cordis 与 YAML loader 不进入引擎（保留在 D20 仓库）；condition 子系统尚未接线（无状态字段、未进装配）暂不并入；
   - 测试 +105（规则行为契约 + 内核装配/总线/fork/回收契约），套件 484 项。
@@ -26,6 +26,29 @@
   - 依赖方向唯一：fork 可见引擎层服务（父链查找），反向不可见——实例服务经 fork 句柄访问。
 - 测试 +10（fork 语义 7 + 引擎作用域挂载 3），套件 379 项。
 
+### Changed
+
+- **引擎改名：`alloy` → `allin_engine`（PyPI 项目名 `allin-engine`）**。`alloy` 不承载项目性质（既不体现"游戏引擎"，也不是合理的缩写），改回 `allin_engine`：
+  - 包目录 `alloy/` → `allin_engine/`；全仓 **753 处引用、173 个文件**同步替换（整词匹配，零残留）；
+  - `pyproject.toml` 同步：`name = "allin-engine"`、`packages.find.include = ["allin_engine*"]`、`package-data`、`console_scripts`（`allin-test = allin_engine.test.run_all:main`）；
+  - 删除 2026-08-23 遗留的 `allin_engine/` 兼容 shim —— 它的作用是把 `allin_engine` 重定向到 `alloy`，方向已与本改名相反；
+  - `project.urls` 修正：此前指向并不存在的 `https://github.com/quan/alloy`，改为实际仓库 `https://gitee.com/siwpan/an-engine`；
+  - `description` 去掉内部路径 `D:\allin`；补 `classifiers` 与 `trpg` 关键词；
+  - `cli.py` 的 `PRUNE_DIRS`：`alloy.egg-info` → `allin_engine.egg-info`。`sync` 的副本目录探测逻辑**无需修改**（本就同时兼容 `alloy` / `allin_engine` 两个名字）；
+  - 验证：`allin_engine-1.0.0-py3-none-any.whl` 构建成功（顶层仅 `allin_engine/`），`twine check` PASSED；`import allin_engine` / `GameEngine` / `core` / `world` / `systems` / `trpg` 全部通过，旧名 `alloy` 已不可导入。
+- **字体不再随包分发**：`fonts/` 移出 wheel —— 此前 27.3MB 里单个手写体就占 50.5MB（压缩后）。
+  改为按需自备：`get_fonts_dir()` 新增「用户数据目录」兜底（`%APPDATA%\allin_engine\fonts`，
+  不存在则自动创建），新增 `ALLIN_FONTS_DIR` 环境变量（与既有的 `ALLIN_FONT_PATH` 并存）；
+  缺字体时自动降级到系统 CJK 字体。
+  两个坑：① 仅删 `package-data` 无效 —— pyproject 模式下 setuptools 的 `include-package-data`
+  默认为 True，会自动收录包目录下**被 git 跟踪**的文件（字体正在其中），须显式置 false；
+  ② `*.egg-info/SOURCES.txt` 会缓存文件清单，导致重建继续沿用旧内容，须删 egg-info 并
+  `--no-cache-dir`。最终 wheel **27.3MB → 340.9KB**。
+- **5 个内联副本项目同步迁移**：`dwarf-scrolls/alloy`、`fish/tools/alloy`、
+  `jotunnslayer/vendor/alloy`、`mahjong/alloy`、`mc-clone/alloy` → `allin_engine`
+  （共 371 文件 / 1586 处引用），并删除各项目遗留的反向 shim、更新 `engine.patch.yaml`
+  的 `engine` 字段。5 个项目导入验证均通过。
+
 ### Fixed
 
 - `load_cjk_tk_font` 平台字体族未命中时，兜底 `tkfont.Font` 在根窗口销毁后创建导致 `Too early to use font: no default root window`；现于兜底前确保存在默认根窗口（无头 / 测试线程环境可用）。
@@ -35,4 +58,4 @@
 ### Added
 
 - 首个发行版：便携源码 zip（剔除 .venv/构建产物/输出物，依赖见 README）。
-- 发布面：gitee [siwpan/an-engine](https://gitee.com/siwpan/an-engine) release `v1.0.0`（alloy 统一游戏引擎 v1.0.0）。
+- 发布面：gitee [siwpan/an-engine](https://gitee.com/siwpan/an-engine) release `v1.0.0`（allin_engine 统一游戏引擎 v1.0.0）。

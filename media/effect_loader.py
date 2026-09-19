@@ -10,7 +10,7 @@ import json
 import os
 import glob
 import re
-from alloy.media.core import EngineEffect
+from allin_engine.media.core import EngineEffect
 
 
 def _effect_config_has_key(effect_config: dict, key: str) -> bool:

@@ -1,13 +1,13 @@
 """
 example_local_font.py — 本地字体加载示例
 
-演示 alloy 的「从本地加载字体」能力：
+演示 allin_engine 的「从本地加载字体」能力：
   - 自动发现包内 fonts/ 目录的打包字体
   - pygame 端：load_local_font 渲染中文文字并导出 PNG
   - tkinter 端：load_local_tk_font 用于 GUI 标题/按钮
 
 运行：
-    cd D:/allin && python alloy/example_local_font.py
+    cd D:/allin && python allin_engine/example_local_font.py
 
 说明：
   - 无需显示器即可体验字体加载逻辑（pygame 渲染部分在无头环境仅导出 PNG）
@@ -24,7 +24,7 @@ import tempfile
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, PROJECT_ROOT)
 
-from alloy.utils.font import (
+from allin_engine.utils.font import (
     discover_local_fonts,
     get_default_local_font_name,
     load_local_font,
@@ -39,7 +39,7 @@ def demo_discovery() -> None:
     print("=" * 60)
     fonts = discover_local_fonts()
     if not fonts:
-        print("  （未找到本地字体，请将 .ttf/.otf/.ttc 放入 alloy/fonts/）")
+        print("  （未找到本地字体，请将 .ttf/.otf/.ttc 放入 allin_engine/fonts/）")
         return
     for alias, path in fonts:
         print(f"  - 别名: {alias}")
@@ -153,7 +153,7 @@ def fonts_exist() -> bool:
 
 def main() -> None:
     print()
-    print("  alloy — 本地字体加载示例")
+    print("  allin_engine — 本地字体加载示例")
     print()
     demo_discovery()
     demo_pygame()

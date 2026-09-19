@@ -1,4 +1,4 @@
-# alloy — 统一游戏引擎
+# allin-engine — 统一游戏引擎
 
 从 G:\ 下 100+ 个项目中提炼的通用 Python 游戏引擎（独立仓 siwpan/an-engine，本地 G:\repos\an-engine），融合 ECS 架构、事件总线、世界模型、卡牌战斗、AI 叙事、音频合成等能力。
 
@@ -43,7 +43,7 @@ pip install -e ".[all]"
 ## 快速开始
 
 ```python
-from alloy import GameEngine
+from allin_engine import GameEngine
 
 # 一键装配
 engine = GameEngine()
@@ -61,16 +61,16 @@ inventory = engine.get("inventory")
 
 ```python
 # 或按需导入
-from alloy.core import World, Entity, Component, System, EventBus
-from alloy.world import PlayerState, Room, Item, MapData, MapGraph
-from alloy.systems import Inventory, PuzzleSystem, CommandParser
-from alloy.systems.combat import CombatEngine, Card, CardDeck, Enemy
+from allin_engine.core import World, Entity, Component, System, EventBus
+from allin_engine.world import PlayerState, Room, Item, MapData, MapGraph
+from allin_engine.systems import Inventory, PuzzleSystem, CommandParser
+from allin_engine.systems.combat import CombatEngine, Card, CardDeck, Enemy
 ```
 
 TRPG 角色构建（D20 规则内核，零依赖）：
 ```python
-from alloy.trpg import Character, preset_trpg
-from alloy.core import Context
+from allin_engine.trpg import Character, preset_trpg
+from allin_engine.core import Context
 
 c = Character()
 c.set_attribute("力量", 16)
@@ -85,18 +85,18 @@ c2 = Character(ctx=ctx)
 
 运行示例：
 ```bash
-cd G:/repos/an-engine && python alloy/example_quickstart.py
-cd G:/repos/an-engine && python alloy/example_decision_ai.py
+cd G:/repos/an-engine && python allin_engine/example_quickstart.py
+cd G:/repos/an-engine && python allin_engine/example_decision_ai.py
 ```
 
 运行测试（484 个）：
 ```bash
-cd G:/repos/an-engine && python -m alloy.test.run_all
+cd G:/repos/an-engine && python -m allin_engine.test.run_all
 ```
 
 ## 决策 / 行为范式（状态机 · 行为树 · 决策树 · 差分引擎）
 
-`alloy.ai.decision` 集成了源自 zhuangtaiji 项目的四种计算/决策范式，
+`allin_engine.ai.decision` 集成了源自 zhuangtaiji 项目的四种计算/决策范式，
 覆盖游戏 AI 与状态管理的核心需求，并与本引擎的 ECS 世界循环、事件总线深度打通：
 
 | 范式 | 适用场景 | 关键 API |
@@ -109,8 +109,8 @@ cd G:/repos/an-engine && python -m alloy.test.run_all
 **接入 ECS 世界循环**（让 NPC 拥有可驱动的「大脑」）：
 
 ```python
-from alloy import GameEngine, BrainComponent, BlackboardComponent
-from alloy.ai.decision import build_brain_from_spec, default_brains_config
+from allin_engine import GameEngine, BrainComponent, BlackboardComponent
+from allin_engine.ai.decision import build_brain_from_spec, default_brains_config
 
 engine = GameEngine()
 engine.add_core().add_ai_brain()          # 注册 BrainSystem 到世界主循环
@@ -152,19 +152,19 @@ engine.advance(0.05)         # 按 1/60 固定步长切分多次 world.update，
 | `ai/decision/decision_tree.py` | 规则型决策树 DT：Condition/Switch/Action 路由 | 移植 |
 | `ai/decision/difference_engine.py` | 差分引擎：有限差分递推 + StateDiff + ReactiveTracker 响应式 | 移植 |
 | `ai/decision/brain.py` | ECS 粘合层：BlackboardComponent / BrainComponent / BrainSystem | 新增 |
-| `trpg/context.py` | TrpgContext 适配层：alloy Context+EventBus 上的 D20 兼容视图（属性代理/事件分发/Service 基类） | 并入 |
+| `trpg/context.py` | TrpgContext 适配层：allin_engine Context+EventBus 上的 D20 兼容视图（属性代理/事件分发/Service 基类） | 并入 |
 | `trpg/character.py` | Character 公共门面：14 服务委托 + ctx.state 状态代理 + preset 装配 | 并入 |
 | `trpg/data.py` | 规则数据中枢（D&D 三宝书 + GURPS Basic Set 融合，单一事实来源） | 并入 |
 
 ## TRPG 规则内核（D20 并入 · R2）
 
-`alloy.trpg` 是 D20（D&D-GURPS 变体角色构建器，siwpan 项目，原 G:\local\D20）规则内核的
+`allin_engine.trpg` 是 D20（D&D-GURPS 变体角色构建器，siwpan 项目，原 G:\local\D20）规则内核的
 engine 化版本：14 个子系统（属性/装备/优缺点/天赋/技术/种族/背景/专长/技能/骰子/衍生/
-法术位/休整/战斗宏/角色卡）挂到 alloy 的可逆装配内核上，事件骑共享 EventBus，
+法术位/休整/战斗宏/角色卡）挂到 allin_engine 的可逆装配内核上，事件骑共享 EventBus，
 `preset_trpg(ctx)` 与其它标准预设同一套装配协议。
 
 - **并入口径**：D20 自带的 mini-Cordis 容器与 YAML loader 不进入引擎（保留在 D20 仓库）；
-  alloy 侧由 `TrpgContext` 适配层 + 代码预设替代；`condition` 子系统尚未接线（无状态字段、
+  allin_engine 侧由 `TrpgContext` 适配层 + 代码预设替代；`condition` 子系统尚未接线（无状态字段、
   未进装配），暂不并入。
 - **多角色**：一个宿主 Context 一个内核；每角色独立装配用 `ctx.fork(name)` + preset，
   fork 销毁即整体回收。
@@ -173,21 +173,35 @@ engine 化版本：14 个子系统（属性/装备/优缺点/天赋/技术/种�
 
 ## 本地字体加载
 
-引擎支持从包内 `alloy/fonts/` 目录加载本地字体（随包分发，跨平台一致），
-同时兼容 `ALLIN_FONT_PATH` 环境变量、系统字体与 pygame/tkinter 多重兜底。
+引擎支持加载本地字体，并兼容 `ALLIN_FONT_PATH` / `ALLIN_FONTS_DIR` 环境变量、系统字体与
+pygame/tkinter 多重兜底。
 
-目录结构：
+> **字体不随包分发。** 手写体单个约 50MB，随包会让 wheel 从约 340KB 膨胀到 27MB，因此
+> 字体只在源码仓库内保留，安装包不含它。缺字体时会自动降级到系统 CJK 字体，功能不受影响。
+
+字体查找顺序：
+
+1. `ALLIN_FONTS_DIR` 环境变量（字体目录）
+2. `<包>/fonts/`（开发环境；或自行放入包目录）
+3. `<资源根>/fonts/`
+4. **用户数据目录**（推荐的存放位置，不存在会自动创建）
+   - Windows：`%APPDATA%\allin_engine\fonts\`
+   - Linux/macOS：`~/.local/share/allin_engine/fonts/`
+
+此外 `ALLIN_FONT_PATH` 可直接指定单个字体文件。
+
+源码仓库内的目录结构（供本地开发，不随包发布）：
 ```
-alloy/
+allin_engine/
 └── fonts/
-    └── BaoCanMouHuiTingShouXieTi2.0-2.ttf   # 随包打包的手写体（默认本地字体）
+    └── BaoCanMouHuiTingShouXieTi2.0-2.ttf   # 手写体
 ```
 
 Pygame 端：
 ```python
-from alloy.utils.font import load_local_font, load_cjk_font
+from allin_engine.utils.font import load_local_font, load_cjk_font
 
-# 加载打包字体（默认取 fonts/ 中第一个发现的字体）
+# 加载本地字体（默认取 fonts/ 中第一个发现的字体）
 font = load_local_font(32, bold=True)
 font.render("饱餐谋·文字冒险", True, (255, 255, 255))
 
@@ -200,7 +214,7 @@ font = load_cjk_font(16, local_first=True)
 
 Tkinter 端（GUI 标题/按钮用手写体，正文保持系统等宽可读性）：
 ```python
-from alloy.render.gui_base import get_default_fonts
+from allin_engine.render.gui_base import get_default_fonts
 
 fonts = get_default_fonts(local_font="baocanmou")  # title/heading/button 用手写体
 ```

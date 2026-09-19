@@ -9,7 +9,7 @@
 
 使用方式：
 
-    from alloy.systems.crafting import CraftingSystem, Recipe
+    from allin_engine.systems.crafting import CraftingSystem, Recipe
 
     # 定义配方
     recipes = {

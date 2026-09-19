@@ -3,7 +3,7 @@
 层次状态机（Hierarchical State Machine, HSM）
 ============================================
 
-从 zhuangtaiji 项目移植并适配 alloy。基于 UML 状态图（David Harel）。
+从 zhuangtaiji 项目移植并适配 allin_engine。基于 UML 状态图（David Harel）。
 
 在原有 GenericStateMachine 之上新增：
 * 嵌套子状态 (substates)：父状态激活时内部有「当前子状态」。

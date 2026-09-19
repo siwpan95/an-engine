@@ -1,5 +1,5 @@
 """
-alloy.audio — 音频层子包
+allin_engine.audio — 音频层子包
 
 提供:
   - SynthVoice / ADSR: 合成音色参数 + 包络
@@ -10,16 +10,16 @@ alloy.audio — 音频层子包
   - AudioSystem: 统一音频播放接口（pygame mixer 后端）
 """
 
-from alloy.audio.synth import (
+from allin_engine.audio.synth import (
     OscType, EnvShape, ADSRParams,
     SynthVoice, synthesize_voice,
     oscillator, make_envelope,
 )
-from alloy.audio.music_gen import (
+from allin_engine.audio.music_gen import (
     MusicPattern, generate_music_wav,
     MENU, BATTLE, BOSS, DUNGEON, AMBIENT, VICTORY,
 )
-from alloy.audio.audio_system import AudioSystem
+from allin_engine.audio.audio_system import AudioSystem
 
 __all__ = [
     "OscType",

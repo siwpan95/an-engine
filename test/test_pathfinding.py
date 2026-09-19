@@ -4,7 +4,7 @@
 使用自包含的最小 Fake 网格 / 图，避免依赖完整 MapData / MapGraph 实例化。
 """
 
-from alloy.world.pathfinding import grid_astar, GraphPathFinder
+from allin_engine.world.pathfinding import grid_astar, GraphPathFinder
 
 
 # ============================================================

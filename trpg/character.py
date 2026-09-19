@@ -1,4 +1,4 @@
-"""alloy.trpg.character - Character 公共门面（alloy 化装配）
+"""allin_engine.trpg.character - Character 公共门面（allin_engine 化装配）
 
 自 D20（G:\\local\\D20，D&D-GURPS 变体角色构建器）并入（R2）。14 个子系统不再是
 mixin 多重继承，而是挂到 ``TrpgContext`` 上的 ``Service``：
@@ -20,19 +20,19 @@ mixin 多重继承，而是挂到 ``TrpgContext`` 上的 ``Service``：
       └── ctx.sheet        SheetService        角色卡渲染
 
 ``Character`` 本身只是一层**兼容门面**：
-- 持有 ``ctx``（TrpgContext：alloy 服务容器 + alloy EventBus 事件 + 可逆生命周期）
+- 持有 ``ctx``（TrpgContext：allin_engine 服务容器 + allin_engine EventBus 事件 + 可逆生命周期）
   与 ``state``（可变实例状态）；
 - 全部老公共方法委托给对应 ``ctx.<service>.<method>``；
 - 实例状态字段（``cp`` / ``attributes`` / ``skills`` / …）通过 ``__getattr__`` /
   ``__setattr__`` 透明代理到 ``ctx.state``，服务读写 ``ctx.state`` 即等于读写角色；
-- 类级规则数据（``SKILL_LIBRARY`` / ``TECHNIQUES`` / …）从 ``alloy.trpg.data``
+- 类级规则数据（``SKILL_LIBRARY`` / ``TECHNIQUES`` / …）从 ``allin_engine.trpg.data``
   单一事实来源复制为类属性，保证 ``char.SKILL_LIBRARY`` 等老 API 不变；
-- 装配由 ``preset_trpg`` 驱动（alloy 预设风格；D20 原为 composition.yml + loader）。
+- 装配由 ``preset_trpg`` 驱动（allin_engine 预设风格；D20 原为 composition.yml + loader）。
 
 多角色装配模式（fork 双作用域）：
-    from alloy.core.context import Context
-    from alloy.core.event_bus import EventBus
-    from alloy.trpg import Character, preset_trpg
+    from allin_engine.core.context import Context
+    from allin_engine.core.event_bus import EventBus
+    from allin_engine.trpg import Character, preset_trpg
 
     root = Context(); root.provide("bus", EventBus())
     fork = root.fork("char1")
@@ -93,13 +93,13 @@ class CharacterState:
 
 
 class Character:
-    """D&D-GURPS 变体角色（alloy 化门面）。
+    """D&D-GURPS 变体角色（allin_engine 化门面）。
 
     老 API（``char.set_attribute`` / ``char.SKILL_LIBRARY`` / ``char.cp`` /
     ``char.skills`` / ``char.show_sheet()`` …）全部保留，内部委托给 ``ctx`` 上的 Service。
     """
 
-    # ---- 类级规则数据（单一事实来源：alloy.trpg.data），保持老 API 可用 ----
+    # ---- 类级规则数据（单一事实来源：allin_engine.trpg.data），保持老 API 可用 ----
     ATTRIBUTES = ATTRIBUTES
     EQUIPMENT_LIBRARY = EQUIPMENT_LIBRARY
     SKILL_LIBRARY = SKILL_LIBRARY
@@ -131,9 +131,9 @@ class Character:
         # ctx / state 为普通实例属性，不走状态代理
         self.state = CharacterState(starting_cp, max_disadvantage_cp)
         if ctx is None:
-            from alloy.core.context import Context
+            from allin_engine.core.context import Context
             ctx = Context()
-        # alloy 预设装配（幂等）：宿主已有存活的 trpg 内核则直接复用
+        # allin_engine 预设装配（幂等）：宿主已有存活的 trpg 内核则直接复用
         preset_trpg(ctx)
         self.ctx = ctx.get("trpg")
         self.ctx.state = self.state

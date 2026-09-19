@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 def test_media_formula_engine():
-    from alloy.media.formula_engine import FormulaEngine
+    from allin_engine.media.formula_engine import FormulaEngine
     engine = FormulaEngine()
     func = engine.compile("sin(t)", ["t"])
     result = func(t=0.5)
@@ -23,7 +23,7 @@ def test_media_primitives_importable():
     names = [p.stem for p in sorted(prim_dir.glob("*.py")) if not p.stem.startswith("_")]
     assert len(names) >= 20
     for n in ("ca", "fluid", "particle", "curve", "formula"):
-        importlib.import_module(f"alloy.media.primitives.{n}")
+        importlib.import_module(f"allin_engine.media.primitives.{n}")
 
 
 def test_media_recipes_count():
@@ -36,16 +36,16 @@ def test_media_recipes_count():
 def test_media_ca_formula_single_path():
     """方案 A：CAPrimitive 不再引用 JIT 核，配方公式为唯一真相。"""
     from pathlib import Path
-    from alloy.media.primitives import ca as ca_mod
+    from allin_engine.media.primitives import ca as ca_mod
 
     assert ca_mod.HAS_NUMBA is False
     src = Path(ca_mod.__file__).read_text(encoding="utf-8")
-    assert "from alloy.media.primitives.ca_kernel" not in src
+    assert "from allin_engine.media.primitives.ca_kernel" not in src
 
 
 def test_media_ca_kernel_retired():
     """方案 A：ca_kernel 已退役为只读史料。"""
-    from alloy.media.primitives import ca_kernel
+    from allin_engine.media.primitives import ca_kernel
 
     assert getattr(ca_kernel, "__retired__", False) is True
 
@@ -59,7 +59,7 @@ def test_media_ca_bz_formula_semantics():
     （旧 JIT 核对 BZ 用连续松弛模型，与公式不一致——已退役。）
     """
     import numpy as np
-    from alloy.media.formula_engine import FormulaEngine
+    from allin_engine.media.formula_engine import FormulaEngine
 
     eng = FormulaEngine()
     rule = eng.compile("1 if (c > 0.5) else (0.5 if sum_n > 1 else c)", ["c", "sum_n"])
@@ -79,8 +79,8 @@ def test_media_ca_bz_formula_semantics():
 
 def test_media_ca_engine():
     """CA 规则引擎（J2 S3 自 cellular_automaton 并入）：141 规则加载 + 演化。"""
-    from alloy.media.ca import CellularAutomaton
-    from alloy.media.ca.rules.rule_manager import RuleManager
+    from allin_engine.media.ca import CellularAutomaton
+    from allin_engine.media.ca.rules.rule_manager import RuleManager
 
     m = RuleManager()
     assert m.total_count >= 140
@@ -92,8 +92,8 @@ def test_media_ca_engine():
 
 def test_media_preset_assembly():
     """profile "media" 装配后 Context 持有 media 服务（dump-profile 显示 media 子系统）。"""
-    from alloy.core.context import Context
-    from alloy.core.profiles import assemble_profile
+    from allin_engine.core.context import Context
+    from allin_engine.core.profiles import assemble_profile
 
     ctx = Context()
     try:

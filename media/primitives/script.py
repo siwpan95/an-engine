@@ -15,8 +15,8 @@
 import math
 import random as _random
 from PIL import ImageDraw
-from alloy.media.primitives import register_primitive, RenderPrimitive
-from alloy.media.helpers import hsv_to_rgb
+from allin_engine.media.primitives import register_primitive, RenderPrimitive
+from allin_engine.media.helpers import hsv_to_rgb
 
 
 class ScriptCompat:

@@ -11,8 +11,8 @@ from typing import Optional
 import numpy as np
 from numpy.typing import NDArray
 
-from alloy.media.ca.rules.base import CARule
-from alloy.media.ca.rules import RULES
+from allin_engine.media.ca.rules.base import CARule
+from allin_engine.media.ca.rules import RULES
 
 
 class CellularAutomaton:

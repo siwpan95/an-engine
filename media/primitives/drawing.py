@@ -13,7 +13,7 @@
 """
 import math
 from PIL import ImageDraw
-from alloy.media.primitives import register_primitive, RenderPrimitive
+from allin_engine.media.primitives import register_primitive, RenderPrimitive
 
 # 支持的形状
 SHAPES = ('circle', 'rect', 'line', 'polygon', 'ellipse', 'arc')

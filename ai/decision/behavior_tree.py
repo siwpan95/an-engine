@@ -3,7 +3,7 @@
 行为树（Behavior Tree, BT）引擎
 ================================
 
-从 zhuangtaiji 项目移植并适配 alloy。参考游戏 AI / 机器人控制常用模型。
+从 zhuangtaiji 项目移植并适配 allin_engine。参考游戏 AI / 机器人控制常用模型。
 
 核心思想
 --------
@@ -24,7 +24,7 @@
 
 Blackboard（黑板）：所有节点共享的键值存储，用于节点间通信。
 
-在 alloy 中，行为树通过 BrainComponent + BrainSystem 挂到 ECS 实体上，
+在 allin_engine 中，行为树通过 BrainComponent + BrainSystem 挂到 ECS 实体上，
 每帧由世界循环 tick（见 brain.py）。
 """
 from __future__ import annotations

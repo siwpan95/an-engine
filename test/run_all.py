@@ -2,7 +2,7 @@
 运行所有单元测试
 
 用法：
-    cd D:/allin && python -m alloy.test.run_all
+    cd D:/allin && python -m allin_engine.test.run_all
 """
 
 import sys
@@ -12,10 +12,10 @@ import os
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, PROJECT_ROOT)
 
-from alloy.test.runner import TestRunner, ErrorType
+from allin_engine.test.runner import TestRunner, ErrorType
 
 # 导入所有测试
-from alloy.test.test_core import (
+from allin_engine.test.test_core import (
     test_entity_create, test_entity_add_component, test_entity_has_component,
     test_entity_remove_component, test_entity_unique_id,
     test_world_create_entity, test_world_add_system, test_world_update,
@@ -25,7 +25,7 @@ from alloy.test.test_core import (
     test_event_bus_once, test_event_bus_return_count, test_event_bus_clear,
     test_event_bus_has_listeners,
 )
-from alloy.test.test_world import (
+from allin_engine.test.test_world import (
     test_player_state_hp, test_player_state_hp_clamp, test_player_state_add_item,
     test_player_state_remove_item, test_player_state_flags, test_player_state_sanity,
     test_player_state_is_alive,
@@ -37,7 +37,7 @@ from alloy.test.test_world import (
     test_map_graph_create, test_map_graph_add_node, test_map_graph_navigation,
     test_map_node_connections,
 )
-from alloy.test.test_systems import (
+from allin_engine.test.test_systems import (
     test_inventory_create, test_inventory_add_item, test_inventory_get_item,
     test_inventory_remove_item, test_inventory_has, test_inventory_iter,
     test_inventory_capacity,
@@ -46,7 +46,7 @@ from alloy.test.test_systems import (
     test_save_load_create, test_save_load_save_and_load, test_save_load_list_slots,
 )
 
-from alloy.test.test_combat import (
+from allin_engine.test.test_combat import (
     test_card_create, test_card_cost_property, test_card_serialization, test_card_repr,
     test_carddeck_create, test_carddeck_add_remove, test_carddeck_remove_all,
     test_carddeck_draw, test_carddeck_list_ids, test_carddeck_serialization,
@@ -68,7 +68,7 @@ from alloy.test.test_combat import (
     test_combat_engine_start, test_combat_engine_play_card, test_combat_engine_end_combat,
 )
 
-from alloy.test.test_command import (
+from allin_engine.test.test_command import (
     test_command_result_ok, test_command_result_fail, test_command_result_to_dict,
     test_command_result_repr,
     test_parser_basic, test_parser_empty_input, test_parser_whitespace_only,
@@ -87,7 +87,7 @@ from alloy.test.test_command import (
     test_handler_get_all_commands, test_handler_last_result, test_handler_result_history,
 )
 
-from alloy.test.test_mod_loader import (
+from allin_engine.test.test_mod_loader import (
     test_card_library_load_json_file, test_card_library_load_json_dir,
     test_card_library_load_wrapped_json, test_card_library_from_json,
     test_enemy_library_load_json_file, test_enemy_library_load_wrapped_json,
@@ -97,7 +97,7 @@ from alloy.test.test_mod_loader import (
     test_mod_manager_find_data_dirs, test_mod_manager_get_nonexistent_mod,
 )
 
-from alloy.test.test_render import (
+from allin_engine.test.test_render import (
     test_map_data_from_string, test_map_data_empty, test_map_data_get_set,
     test_map_data_empty_string, test_map_data_uneven_lines,
     test_renderer_init, test_renderer_draw_text, test_renderer_draw_centered_text,
@@ -114,7 +114,7 @@ from alloy.test.test_render import (
     test_formula_engine_import,
 )
 
-from alloy.test.test_audio import (
+from allin_engine.test.test_audio import (
     test_note_to_freq_a4, test_note_to_freq_a5, test_note_to_freq_a3,
     test_note_to_freq_c4, test_note_to_freq_c5,
     test_note_to_freq_sharp, test_note_to_freq_flat,
@@ -136,7 +136,7 @@ from alloy.test.test_audio import (
     test_generate_music_wav_no_numpy,
 )
 
-from alloy.test.test_ai import (
+from allin_engine.test.test_ai import (
     test_option_dataclass, test_scene_dataclass,
     test_game_state_create, test_game_state_serialization,
     test_eval_none_conditions, test_eval_empty_list, test_eval_empty_dict,
@@ -161,7 +161,7 @@ from alloy.test.test_ai import (
     test_content_generator_create, test_content_generator_fallback,
 )
 
-from alloy.test.test_decision import (
+from allin_engine.test.test_decision import (
     test_fsm_transition, test_fsm_invalid_event, test_fsm_factory_returns_fsm,
     test_fsm_internal_transition,
     test_hsm_nested_initial, test_hsm_transition_into_substate,
@@ -175,7 +175,7 @@ from alloy.test.test_decision import (
     test_loader_default_config, test_loader_from_dict, test_loader_build_all_specs,
 )
 
-from alloy.test.test_font import (
+from allin_engine.test.test_font import (
     test_get_local_fonts_dir,
     test_discover_local_fonts_finds_bundled,
     test_list_local_fonts_nonempty,
@@ -196,7 +196,7 @@ from alloy.test.test_font import (
     test_clear_font_cache_resets,
 )
 
-from alloy.test.test_pathfinding import (
+from allin_engine.test.test_pathfinding import (
     test_grid_astar_basic, test_grid_astar_goal_in_wall_returns_none,
     test_grid_astar_enclosed_returns_none, test_grid_astar_out_of_bounds_returns_none,
     test_grid_astar_diagonal, test_grid_astar_no_diagonal_longer,
@@ -205,17 +205,17 @@ from alloy.test.test_pathfinding import (
     test_graph_locked_skipped_when_not_ignored,
 )
 
-from alloy.test.test_serializable import (
+from allin_engine.test.test_serializable import (
     test_nested_dataclass_roundtrip, test_nested_list_empty,
     test_nested_dataclass_explicit_none_preserved,
 )
 
-from alloy.test.test_data_library import (
+from allin_engine.test.test_data_library import (
     test_data_library_registers_id_zero,
     test_json_loader_returns_independent_copies,
 )
 
-from alloy.test.test_world_log import (
+from allin_engine.test.test_world_log import (
     test_worldlog_append_increments_seq,
     test_worldlog_entries_in_order,
     test_worldlog_entries_since,
@@ -234,7 +234,7 @@ from alloy.test.test_world_log import (
     test_worldlog_audit_summary,
 )
 
-from alloy.test.test_context import (
+from allin_engine.test.test_context import (
     test_context_provide_get,
     test_context_get_missing_raises,
     test_context_get_default,
@@ -273,7 +273,7 @@ from alloy.test.test_context import (
     test_eventbus_serial_all_none_returns_none,
 )
 
-from alloy.test.test_trpg import (
+from allin_engine.test.test_trpg import (
     test_trpg_attr_cost_base_free, test_trpg_attr_cost_brackets,
     test_trpg_attr_cost_monotonic, test_trpg_set_attribute_basic,
     test_trpg_set_attribute_too_low, test_trpg_set_attribute_unknown,
@@ -640,7 +640,7 @@ def main() -> int:
     runner = TestRunner(timeout=5.0)
 
     print("=" * 60)
-    print("  alloy 单元测试汇总")
+    print("  allin_engine 单元测试汇总")
     print("=" * 60)
     print()
     print(f"共 {len(all_tests)} 个测试")

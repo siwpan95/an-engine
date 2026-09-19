@@ -40,8 +40,8 @@ formula 原语 — 通用公式原语，支持用数学表达式定义视觉效�
   }
 """
 import numpy as np
-from alloy.media.formula_engine import FormulaEngine
-from alloy.media.primitives import register_primitive, RenderPrimitive
+from allin_engine.media.formula_engine import FormulaEngine
+from allin_engine.media.primitives import register_primitive, RenderPrimitive
 
 
 @register_primitive('formula')

@@ -6,7 +6,7 @@ Serializable 嵌套反序列化测试 — 验证修复 ``from __future__ import 
 from dataclasses import dataclass, field
 from typing import List
 
-from alloy.core.serializable import Serializable
+from allin_engine.core.serializable import Serializable
 
 
 @dataclass

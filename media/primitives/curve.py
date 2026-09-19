@@ -20,8 +20,8 @@
 """
 import math
 import numpy as np
-from alloy.media.formula_engine import FormulaEngine
-from alloy.media.primitives import register_primitive, RenderPrimitive
+from allin_engine.media.formula_engine import FormulaEngine
+from allin_engine.media.primitives import register_primitive, RenderPrimitive
 
 
 @register_primitive('curve')

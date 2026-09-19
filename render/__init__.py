@@ -1,5 +1,5 @@
 """
-alloy.render — 渲染层子包
+allin_engine.render — 渲染层子包
 
 提供:
   - ConsoleRenderer: 终端 ANSI 文字渲染器
@@ -14,11 +14,11 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-from alloy.render.console_renderer import ConsoleRenderer
+from allin_engine.render.console_renderer import ConsoleRenderer
 
 # Tkinter GUI 组件（可选，无 tkinter 时设为 None）
 try:
-    from alloy.render.gui_base import BaseWindow, StatusPanel, Styles
+    from allin_engine.render.gui_base import BaseWindow, StatusPanel, Styles
 except ImportError:
     logger.warning("tkinter 不可用，Tkinter GUI 功能已禁用（BaseWindow/StatusPanel/Styles = None）")
     BaseWindow = None
@@ -26,23 +26,23 @@ except ImportError:
     Styles = None
 
 # 颜色系统（无硬依赖）
-from alloy.render.color_system import (
+from allin_engine.render.color_system import (
     ColorGenerator, SolidColor, HSVFlowColor, EnergyColor, RainbowColor,
 )
 
 # 公式引擎（可选，无 numpy 时设为 None）
 try:
-    from alloy.render.formula_engine import FormulaEngine
+    from allin_engine.render.formula_engine import FormulaEngine
 except ImportError:
     logger.warning("numpy 不可用，FormulaEngine 已禁用（回退为纯 Python 实现）")
     FormulaEngine = None
 
 # 动画系统（无硬依赖）
-from alloy.render.animation import Animation
+from allin_engine.render.animation import Animation
 
 # 游戏 UI 组件（来自 Minecraft 实战沉淀，需 tkinter）
 try:
-    from alloy.render.widgets import (
+    from allin_engine.render.widgets import (
         GameLogPanel, StatusBar, QuickCommandBar, GameInputBar,
         GameWindow, GameTheme,
     )

@@ -123,7 +123,7 @@ def get_default_fonts(local_font: Optional[str] = None) -> Dict[str, tkfont.Font
     # 用本地字体替换展示角色（标题/副标题/按钮），保留正文可读性
     if local_font:
         try:
-            from alloy.utils.font import load_local_tk_font
+            from allin_engine.utils.font import load_local_tk_font
             display = load_local_tk_font(18, name=local_font, bold=True)
             if display is not None:
                 fonts["title"] = display

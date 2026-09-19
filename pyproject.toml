@@ -3,16 +3,27 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "alloy"
+name = "allin-engine"
 version = "1.0.0"
-description = "统一游戏引擎 — 从 D:\\allin 下多项目提炼的通用 Python 游戏引擎"
+description = "统一游戏引擎 — 融合 ECS、事件总线、世界模型与卡牌战斗的通用 Python 游戏引擎"
 readme = "README.md"
 license = {file = "LICENSE"}
 requires-python = ">=3.10"
 authors = [
     {name = "全哥"}
 ]
-keywords = ["game-engine", "ecs", "roguelike", "python"]
+keywords = ["game-engine", "ecs", "roguelike", "trpg", "python"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Games/Entertainment",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+]
 
 # ---- 核心依赖 (无) ----
 # 引擎核心零硬依赖，所有外部库均为可选
@@ -52,15 +63,25 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/quan/alloy"
-Issues = "https://github.com/quan/alloy/issues"
+Homepage = "https://gitee.com/siwpan/an-engine"
+Repository = "https://gitee.com/siwpan/an-engine"
+Issues = "https://gitee.com/siwpan/an-engine/issues"
 
 [project.scripts]
-allin-test = "alloy.test.run_all:main"
+allin-test = "allin_engine.test.run_all:main"
+
+[tool.setuptools]
+# 关闭「自动收录被 git 跟踪的包内文件」。pyproject 模式下该开关默认为 True，
+# 会绕过 exclude-package-data 把包目录下所有已跟踪文件打进去（字体正是如此，
+# 一度让 wheel 从 ~40KB 膨胀到 27MB）。本包只需 .py 源码。
+include-package-data = false
 
 [tool.setuptools.packages.find]
-include = ["alloy*"]
+include = ["allin_engine*"]
 
-# 随包分发的本地字体（fonts/ 目录下的字体文件）
-[tool.setuptools.package-data]
-alloy = ["fonts/*"]
+# 双保险：即便将来恢复 include-package-data，字体也不进包。
+# 字体按需自备，见 README「字体」一节：
+#   放到 <用户数据目录>/allin_engine/fonts/   （Windows: %APPDATA%\allin_engine\fonts）
+#   或用环境变量 ALLIN_FONT_PATH（单个字体）/ ALLIN_FONTS_DIR（字体目录）指定
+[tool.setuptools.exclude-package-data]
+allin_engine = ["fonts/*"]

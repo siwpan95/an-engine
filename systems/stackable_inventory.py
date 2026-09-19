@@ -13,7 +13,7 @@
 
 使用方式：
 
-    from alloy.systems.stackable_inventory import (
+    from allin_engine.systems.stackable_inventory import (
         StackableInventory, EquipmentSlots, ItemRegistry
     )
 

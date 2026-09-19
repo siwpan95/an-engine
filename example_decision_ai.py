@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-alloy — 决策 / 行为范式 集成示例
+allin_engine — 决策 / 行为范式 集成示例
 ========================================
 
 演示从 zhuangtaiji 项目集成并增强的四种核心决策范式，以及如何把它们真正
@@ -19,17 +19,17 @@ alloy — 决策 / 行为范式 集成示例
 
 运行：
     cd D:\\allin\\tools
-    python -m alloy.example_decision_ai
+    python -m allin_engine.example_decision_ai
 """
 
 import os
 import sys
 
-# 将 alloy 的父目录加入 sys.path，使 alloy 包可被导入
+# 将 allin_engine 的父目录加入 sys.path，使 allin_engine 包可被导入
 _PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path.insert(0, _PROJECT_ROOT)
 
-from alloy import (
+from allin_engine import (
     GameEngine,
     World, Entity, Component, System, EventBus, EventTypes,
     # 决策范式
@@ -41,7 +41,7 @@ from alloy import (
     default_brains_config, load_decision_config, build_brain_from_spec,
     FixedTimestepLoop,
 )
-from alloy.ai.decision import build_behavior_tree, build_decision_tree
+from allin_engine.ai.decision import build_behavior_tree, build_decision_tree
 
 
 # ══════════════════════════════════════════════════════════
@@ -275,7 +275,7 @@ def example_fixed_timestep():
 
 if __name__ == "__main__":
     print("\n" + "=" * 60)
-    print("  alloy — 决策 / 行为范式 集成示例")
+    print("  allin_engine — 决策 / 行为范式 集成示例")
     print("=" * 60 + "\n")
 
     example_fsm()

@@ -3,7 +3,7 @@
 提供 SerializableWorld(World)，对齐引擎既有 to_dict / from_dict 契约，
 可直接交给 SaveLoadManager 存档 / 读档，无需项目侧自行 to_dict。
 
-纯新增模块，不修改 alloy.core.ecs 的 World 类。
+纯新增模块，不修改 allin_engine.core.ecs 的 World 类。
 """
 
 from __future__ import annotations
@@ -11,7 +11,7 @@ from __future__ import annotations
 import dataclasses
 from typing import Any, Dict, List, Optional, Type
 
-from alloy.core.ecs import World, Component, System
+from allin_engine.core.ecs import World, Component, System
 
 
 class SerializableWorld(World):

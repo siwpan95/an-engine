@@ -11,7 +11,7 @@
 
 使用方式:
 
-    from alloy.render.widgets import (
+    from allin_engine.render.widgets import (
         GameLogPanel, StatusBar, QuickCommandBar, GameInputBar
     )
 

@@ -3,7 +3,7 @@
 通用状态机（GenericStateMachine）
 ================================
 
-从 zhuangtaiji 项目移植并适配 alloy。
+从 zhuangtaiji 项目移植并适配 allin_engine。
 
 状态机是解决「状态爆炸」的核心范式：用明确的「状态 + 事件转移」替代
 混乱的条件分支。本模块提供：
@@ -12,7 +12,7 @@
   - create_state_machine : 工厂（按配置自动选择 FSM / HSM）
   - register_guard      : 声明式守卫注册表（config 只能写字符串名）
 
-配合 alloy 的 ECS，可用 StateMachineComponent / BrainComponent 把状态机
+配合 allin_engine 的 ECS，可用 StateMachineComponent / BrainComponent 把状态机
 挂到实体上（见 brain.py）。
 """
 from __future__ import annotations

@@ -4,7 +4,7 @@ test/test_world.py — world 层单元测试
 测试世界模型（GameState / PlayerState / Item / Character / Room / MapGraph）。
 
 运行：
-    cd D:/allin/alloy && python -m test.test_world
+    cd D:/allin/allin_engine && python -m test.test_world
 """
 
 import sys
@@ -12,7 +12,7 @@ import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 
-from alloy.world import (
+from allin_engine.world import (
     GameState, PlayerState, Item, Character, Room, MapGraph, MapNode,
     Portal, Mechanism, MechanismAction,
 )
@@ -315,7 +315,7 @@ def test_map_node_connections():
 # ══════════════════════════════════════════════════════════
 
 if __name__ == "__main__":
-    from alloy.test.runner import TestRunner
+    from allin_engine.test.runner import TestRunner
 
     runner = TestRunner(timeout=5.0)
 

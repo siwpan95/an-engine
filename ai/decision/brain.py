@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-决策脑（Brain）—— 把决策引擎接入 alloy 的 ECS 世界
+决策脑（Brain）—— 把决策引擎接入 allin_engine 的 ECS 世界
 ============================================================
 
 这是本次增强的关键粘合层：让「状态机 / 行为树 / 决策树 / 差分引擎」成为
@@ -8,7 +8,7 @@
 
 设计要点（结合游戏引擎研发沉淀）：
 * BlackboardComponent —— 实体级的共享黑板，行为树节点读写它；
-  与 alloy 的全局 world.set_data 解耦，支持「每个 NPC 各自一份状态」。
+  与 allin_engine 的全局 world.set_data 解耦，支持「每个 NPC 各自一份状态」。
 * BrainComponent —— 挂在实体上的「决策脑」，可持有行为树 / 状态机 / 决策树。
 * BrainSystem —— 每帧遍历拥有 BrainComponent 的实体：
     - 行为树：根驱动 tick（响应式，每帧重评估）——适合 AI 行为编排；
@@ -17,8 +17,8 @@
 * 通过 EventBus 发出 BRAIN_TICK 事件，便于其它系统（渲染/日志）响应。
 
 用法：
-    from alloy.core import World, Entity, Component
-    from alloy.ai.decision import (BlackboardComponent, BrainComponent,
+    from allin_engine.core import World, Entity, Component
+    from allin_engine.ai.decision import (BlackboardComponent, BrainComponent,
                                           BrainSystem, build_behavior_tree)
 
     world = World()
@@ -33,7 +33,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
-from alloy.core import Component, System, World
+from allin_engine.core import Component, System, World
 
 from .behavior_tree import BehaviorTree, Blackboard, Status
 from .state_machine import GenericStateMachine, HierarchicalStateMachine

@@ -1,8 +1,8 @@
 """
-alloy.test.test_trpg - TRPG 规则内核测试（自 D20 测试套件移植，R2）
+allin_engine.test.test_trpg - TRPG 规则内核测试（自 D20 测试套件移植，R2）
 
-规则内核自 D20（G:\\local\\D20）并入 alloy.trpg 后，本套件钉住与 D20 一致的
-行为契约（D&D-GURPS 变体角色构建），并补上 alloy 侧新增的内核契约：
+规则内核自 D20（G:\\local\\D20）并入 allin_engine.trpg 后，本套件钉住与 D20 一致的
+行为契约（D&D-GURPS 变体角色构建），并补上 allin_engine 侧新增的内核契约：
 装配幂等 / 共享总线 / fork 每角色独立作用域 / 事件退订回收 / 装配失败 loud。
 
 移植口径：D20 的 pytest fixtures 改为普通构造助手，pytest.raises 改为显式
@@ -11,18 +11,18 @@ try/except；随机种子与 D20 原测试逐一对齐，保证战斗宏断言�
 
 import random
 
-from alloy.core.context import Context, DuplicateServiceError
-from alloy.core.event_bus import EventBus
-from alloy.trpg import (
+from allin_engine.core.context import Context, DuplicateServiceError
+from allin_engine.core.event_bus import EventBus
+from allin_engine.trpg import (
     Character,
     CordisError,
     Service,
     TrpgContext,
     preset_trpg,
 )
-from alloy.trpg.attributes import calc_attribute_cost
-from alloy.trpg.data import DIFFICULTY_COST
-from alloy.trpg.dice import (
+from allin_engine.trpg.attributes import calc_attribute_cost
+from allin_engine.trpg.data import DIFFICULTY_COST
+from allin_engine.trpg.dice import (
     gurps_success_chance,
     roll_3d6,
     roll_d100,
@@ -304,7 +304,7 @@ def test_trpg_rng_injection():
 
 
 def test_trpg_roll_d6_rng_injection():
-    from alloy.trpg.dice import roll_d6 as _d6
+    from allin_engine.trpg.dice import roll_d6 as _d6
     import random as _random
     r1, r2 = _random.Random(5), _random.Random(5)
     assert _d6(2, mod=3, rng=r1) == _d6(2, mod=3, rng=r2)
@@ -905,7 +905,7 @@ def test_trpg_thief_to_dict():
 
 
 # ---------------------------------------------------------------------------
-#  内核契约（alloy 侧新增）：装配 / 总线 / fork / 回收
+#  内核契约（allin_engine 侧新增）：装配 / 总线 / fork / 回收
 # ---------------------------------------------------------------------------
 def test_trpg_services_mounted():
     c = _char()
@@ -1030,7 +1030,7 @@ def test_trpg_serial_order():
 
 
 def test_trpg_duplicate_service_fails_loud():
-    from alloy.trpg.attributes import AttributesService
+    from allin_engine.trpg.attributes import AttributesService
 
     c = _char()
     try:

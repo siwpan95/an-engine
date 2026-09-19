@@ -4,7 +4,7 @@
 import math
 import random
 from PIL import ImageDraw, ImageFont
-from alloy.media.primitives import register_primitive, RenderPrimitive
+from allin_engine.media.primitives import register_primitive, RenderPrimitive
 
 
 @register_primitive('text_rain')

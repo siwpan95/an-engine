@@ -5,7 +5,7 @@ test/test_ai.py — AI 层单元测试
 对话引擎 (DialogueEngine 规则模式)。
 
 运行：
-    cd D:/allin && python -m alloy.test.test_ai
+    cd D:/allin && python -m allin_engine.test.test_ai
 """
 
 import sys
@@ -13,13 +13,13 @@ import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 
-from alloy.ai.narrative import (
+from allin_engine.ai.narrative import (
     Scene, Option, NarrativeState, ConditionEvaluator, NarrativeEngine,
 )
-from alloy.ai.dialogue import (
+from allin_engine.ai.dialogue import (
     DialogueEngine, MatchResult,
 )
-from alloy.ai.generator import (
+from allin_engine.ai.generator import (
     ContentGenerator, GenerationConfig,
 )
 

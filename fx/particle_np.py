@@ -18,7 +18,7 @@ from typing import Any, Dict, List, Optional
 
 import numpy as np
 
-from alloy.fx.particle import Emitter, ForceField
+from allin_engine.fx.particle import Emitter, ForceField
 
 
 class NumpyParticleSystem:
@@ -189,7 +189,7 @@ class NumpyParticleSystem:
 
     def to_particles(self):
         """物化回引擎 Particle 列表（仅逐粒子渲染 / 调试时调用，非热路径）。"""
-        from alloy.fx.particle import Particle
+        from allin_engine.fx.particle import Particle
 
         out = []
         for i in range(self._n):

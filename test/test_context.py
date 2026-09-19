@@ -12,14 +12,14 @@
 
 from __future__ import annotations
 
-from alloy.core.context import (
+from allin_engine.core.context import (
     Context,
     DuplicateScopeError,
     DuplicateServiceError,
     MissingDependencyError,
 )
-from alloy import GameEngine
-from alloy.core import EventBus
+from allin_engine import GameEngine
+from allin_engine.core import EventBus
 
 
 # ── Context 基础 ─────────────────────────────────────

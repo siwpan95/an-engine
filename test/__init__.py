@@ -1,5 +1,5 @@
 """
-alloy.test — 测试工具子包
+allin_engine.test — 测试工具子包
 
 提供：
   - TestRunner: 测试执行引擎
@@ -8,7 +8,7 @@ alloy.test — 测试工具子包
   - run_all: 批量运行所有测试
 """
 
-from alloy.test.runner import TestRunner, TestResult
-from alloy.test.probe import Probe, ProbeManager
+from allin_engine.test.runner import TestRunner, TestResult
+from allin_engine.test.probe import Probe, ProbeManager
 
 __all__ = ["TestRunner", "TestResult", "Probe", "ProbeManager"]

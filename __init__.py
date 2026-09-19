@@ -1,5 +1,5 @@
 """
-alloy — 统一游戏引擎
+allin_engine — 统一游戏引擎
 ============================
 
 从 D:\\allin 下 100+ 个项目中提炼的通用游戏引擎，融合了以下精华：
@@ -35,7 +35,7 @@ alloy — 统一游戏引擎
 
 快速开始：
     # 方式1: 使用 GameEngine 一键装配
-    from alloy import GameEngine
+    from allin_engine import GameEngine
     
     engine = GameEngine()
     engine.add_core()      # ECS + EventBus
@@ -44,9 +44,9 @@ alloy — 统一游戏引擎
     world = engine.world
     
     # 方式2: 按需导入
-    from alloy.core import World, Entity, Component, System, EventBus
-    from alloy.world import PlayerState, Room, Item, MapData
-    from alloy.systems import Inventory, PuzzleSystem, SaveLoadManager
+    from allin_engine.core import World, Entity, Component, System, EventBus
+    from allin_engine.world import PlayerState, Room, Item, MapData
+    from allin_engine.systems import Inventory, PuzzleSystem, SaveLoadManager
 
 需求依赖：
     Python 3.10+
@@ -66,7 +66,7 @@ __author__ = "全哥"
 
 # ── 核心层 ────────────────────────────────────────────
 # 核心模块无硬依赖，直接导入
-from alloy.core import (
+from allin_engine.core import (
     Entity,
     Component,
     System,
@@ -90,7 +90,7 @@ from alloy.core import (
 )
 
 # ── 标准预设（preset：与 Cordis bundle 对应的装配原语） ──
-from alloy.core.plugins import (
+from allin_engine.core.plugins import (
     preset_core,
     preset_world,
     preset_systems,
@@ -100,11 +100,11 @@ from alloy.core.plugins import (
 )
 
 # ── 配置 ──────────────────────────────────────────────
-from alloy.core.config import (
+from allin_engine.core.config import (
     CELL, COLS, ROWS, WINDOW_W, WINDOW_H, FPS,
     FILL_CHAR, BLOCKED_CHARS, PORTAL_CHARS, DEBUG,
 )
-from alloy.core.paths import (
+from allin_engine.core.paths import (
     ROOT, ENGINE_DIR, CORE_DIR,
     get_resource_root, get_data_dir, get_assets_dir, get_config_dir,
     get_fonts_dir, get_save_dir, get_logs_dir, ensure_dirs,
@@ -112,7 +112,7 @@ from alloy.core.paths import (
 
 # ── 世界模型 ──────────────────────────────────────────
 # 世界模型无硬依赖，直接导入
-from alloy.world import (
+from allin_engine.world import (
     GameState,
     PlayerState,
     ImageryNetwork,
@@ -132,7 +132,7 @@ from alloy.world import (
 
 # ── 游戏系统 ──────────────────────────────────────────
 # 系统层无硬依赖（TkinterInputSource 仅运行时需要 tkinter）
-from alloy.systems import (
+from allin_engine.systems import (
     InputManager,
     CommandParser,
     CommandHandler,
@@ -162,7 +162,7 @@ from alloy.systems import (
 
 # ── 战斗系统 ──────────────────────────────────────────
 # 战斗系统无硬依赖，直接导入
-from alloy.systems.combat import (
+from allin_engine.systems.combat import (
     CombatState,
     CombatEngine,
     Card,
@@ -178,7 +178,7 @@ from alloy.systems.combat import (
 # ── 渲染 ──────────────────────────────────────────────
 # 渲染层：gui_base 需要 tkinter（可选），render/__init__.py 已做条件导入
 # 若 tkinter 不可用，BaseWindow / StatusPanel / Styles 将为 None
-from alloy.render import (
+from allin_engine.render import (
     ConsoleRenderer,
     BaseWindow,
     StatusPanel,
@@ -200,7 +200,7 @@ from alloy.render import (
 
 # ── 音频 ──────────────────────────────────────────────
 # 音频层：pygame 为可选依赖，audio_system 在运行时检测
-from alloy.audio import (
+from allin_engine.audio import (
     SynthVoice,
     synthesize_voice,
     OscType,
@@ -213,7 +213,7 @@ from alloy.audio import (
 
 # ── 特效 ──────────────────────────────────────────────
 # 特效层无硬依赖，直接导入
-from alloy.fx import (
+from allin_engine.fx import (
     Particle,
     Emitter,
     ForceField,
@@ -223,7 +223,7 @@ from alloy.fx import (
 
 # ── AI ────────────────────────────────────────────────
 # AI 层：requests（DeepSeek 后端）为可选依赖，generator 在运行时检测
-from alloy.ai import (
+from allin_engine.ai import (
     NarrativeEngine,
     DialogueEngine,
     ContentGenerator,
@@ -231,7 +231,7 @@ from alloy.ai import (
 
 # ── 决策 / 行为范式（集成自 zhuangtaiji）──────────────
 # 状态机 / 层次状态机 / 行为树 / 决策树 / 差分引擎 / ECS 脑
-from alloy.ai import (
+from allin_engine.ai import (
     GenericStateMachine,
     create_state_machine,
     HierarchicalStateMachine,
@@ -251,7 +251,7 @@ from alloy.ai import (
 
 # ── 测试 ──────────────────────────────────────────────
 # 测试层无硬依赖，直接导入
-from alloy.test import (
+from allin_engine.test import (
     TestRunner,
     TestResult,
     Probe,
@@ -260,7 +260,7 @@ from alloy.test import (
 
 # ── 工具 ──────────────────────────────────────────────
 # 工具层无硬依赖，直接导入
-from alloy.utils import (
+from allin_engine.utils import (
     JSONLoader,
     Logger,
     TextFormatter,

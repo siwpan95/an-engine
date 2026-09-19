@@ -3,7 +3,7 @@
 - GraphPathFinder：在 MapGraph 的节点邻接上做 BFS（无权）/ Dijkstra（加权）/ A*（带位置启发）。
 - grid_astar：在 MapData 的字符网格上做网格 A*（4 或 8 连通）。
 
-纯新增模块，不修改 alloy 任何既有代码。
+纯新增模块，不修改 allin_engine 任何既有代码。
 """
 
 from __future__ import annotations
@@ -13,8 +13,8 @@ import math
 from collections import deque
 from typing import Callable, Dict, List, Optional, Tuple
 
-from alloy.world.map_graph import MapGraph
-from alloy.world.map_data import MapData
+from allin_engine.world.map_graph import MapGraph
+from allin_engine.world.map_data import MapData
 
 
 # ─────────────────────────── 图寻路 ───────────────────────────

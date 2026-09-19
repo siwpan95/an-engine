@@ -4,7 +4,7 @@ test/test_systems.py — systems 层单元测试
 测试游戏系统（Inventory / PuzzleSystem / SaveLoadManager）。
 
 运行：
-    cd D:/allin/alloy && python -m test.test_systems
+    cd D:/allin/allin_engine && python -m test.test_systems
 """
 
 import sys
@@ -13,8 +13,8 @@ import tempfile
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 
-from alloy.systems import Inventory, InventoryItem, Puzzle, PuzzleSystem, SaveLoadManager
-from alloy.world import GameState
+from allin_engine.systems import Inventory, InventoryItem, Puzzle, PuzzleSystem, SaveLoadManager
+from allin_engine.world import GameState
 
 
 # ══════════════════════════════════════════════════════════
@@ -207,7 +207,7 @@ def test_save_load_list_slots():
 # ══════════════════════════════════════════════════════════
 
 if __name__ == "__main__":
-    from alloy.test.runner import TestRunner
+    from allin_engine.test.runner import TestRunner
 
     runner = TestRunner(timeout=5.0)
 

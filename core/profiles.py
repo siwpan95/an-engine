@@ -11,8 +11,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
-from alloy.core.context import Context
-from alloy.core.plugins import (
+from allin_engine.core.context import Context
+from allin_engine.core.plugins import (
     preset_core, preset_world, preset_systems,
     preset_combat, preset_audio, preset_ai_brain,
     preset_media,
@@ -57,7 +57,7 @@ def assemble_profile(ctx: Context, plugins: List[str], config: Optional[dict] = 
 
 def build_report(ctx: Context, profile: str, plugins: List[str], config: Optional[dict]) -> Dict[str, Any]:
     """生成装配报告：档案、插件、已注册服务、配置覆盖、可选依赖能力。"""
-    from alloy.core.deps import feature_flags
+    from allin_engine.core.deps import feature_flags
 
     services: Dict[str, str] = {}
     for key in sorted(ctx.keys()):

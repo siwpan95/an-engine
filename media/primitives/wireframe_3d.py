@@ -18,7 +18,7 @@
 """
 import math
 import random as _random
-from alloy.media.primitives import register_primitive, RenderPrimitive
+from allin_engine.media.primitives import register_primitive, RenderPrimitive
 
 
 # ===== 预设几何体 =====

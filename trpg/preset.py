@@ -1,7 +1,7 @@
-"""alloy.trpg.preset - TRPG 规则内核装配（D20 composition.yml → alloy 代码预设）
+"""allin_engine.trpg.preset - TRPG 规则内核装配（D20 composition.yml → allin_engine 代码预设）
 
 D20 原装配为纯 YAML 组合（composition.yml + d20.loader 拓扑排序 + 极简 YAML
-解析器）。并入 alloy 后改为 alloy 风格的代码预设：按依赖拓扑固定顺序挂载
+解析器）。并入 allin_engine 后改为 allin_engine 风格的代码预设：按依赖拓扑固定顺序挂载
 14 个 Service；inject 校验仍由 TrpgContext.mount 装配期把关（缺依赖直接报错，
 misconfiguration fails loud）。D20 侧的 YAML loader 留在 D20 仓库，不再进入引擎。
 
@@ -17,7 +17,7 @@ from __future__ import annotations
 import importlib
 from typing import Any, Optional
 
-from alloy.core.context import Context
+from allin_engine.core.context import Context
 
 __all__ = ["preset_trpg", "mount_trpg_services", "MOUNT_ORDER"]
 
@@ -29,20 +29,20 @@ MOUNT_ORDER: tuple[str, ...] = (
 
 #: 服务 id → 类点分路径（与 D20 composition.yml 的 service 字段一一对应）。
 _SERVICE_CLASSES: dict[str, str] = {
-    "attributes": "alloy.trpg.attributes.AttributesService",
-    "equipment": "alloy.trpg.equipment.EquipmentService",
-    "perks": "alloy.trpg.perks.PerksService",
-    "techniques": "alloy.trpg.techniques.TechniquesService",
-    "race": "alloy.trpg.race.RaceService",
-    "background": "alloy.trpg.background.BackgroundService",
-    "feats": "alloy.trpg.feats.FeatsService",
-    "skills": "alloy.trpg.skills.SkillsService",
-    "dice": "alloy.trpg.dice.DiceService",
-    "derived": "alloy.trpg.derived.DerivedService",
-    "slots": "alloy.trpg.slots.SpellSlotsService",
-    "rest": "alloy.trpg.rest.RestService",
-    "combat": "alloy.trpg.combat.CombatService",
-    "sheet": "alloy.trpg.sheet.SheetService",
+    "attributes": "allin_engine.trpg.attributes.AttributesService",
+    "equipment": "allin_engine.trpg.equipment.EquipmentService",
+    "perks": "allin_engine.trpg.perks.PerksService",
+    "techniques": "allin_engine.trpg.techniques.TechniquesService",
+    "race": "allin_engine.trpg.race.RaceService",
+    "background": "allin_engine.trpg.background.BackgroundService",
+    "feats": "allin_engine.trpg.feats.FeatsService",
+    "skills": "allin_engine.trpg.skills.SkillsService",
+    "dice": "allin_engine.trpg.dice.DiceService",
+    "derived": "allin_engine.trpg.derived.DerivedService",
+    "slots": "allin_engine.trpg.slots.SpellSlotsService",
+    "rest": "allin_engine.trpg.rest.RestService",
+    "combat": "allin_engine.trpg.combat.CombatService",
+    "sheet": "allin_engine.trpg.sheet.SheetService",
 }
 
 
@@ -62,7 +62,7 @@ def mount_trpg_services(trpg: Any) -> Any:
 
 
 def preset_trpg(ctx: Context) -> Context:
-    """TRPG 规则内核预设：在宿主 alloy Context 上装配 D20 规则内核。
+    """TRPG 规则内核预设：在宿主 allin_engine Context 上装配 D20 规则内核。
 
     - 宿主已提供 'bus' 服务则事件骑共享总线，否则提供独立 EventBus；
     - 'trpg' 服务 = TrpgContext 适配器，其 effect 栈挂宿主（注册即回滚，
@@ -77,7 +77,7 @@ def preset_trpg(ctx: Context) -> Context:
         preset_trpg(fork)
         char = Character(ctx=fork)
     """
-    from alloy.trpg.context import TrpgContext
+    from allin_engine.trpg.context import TrpgContext
 
     if ctx.has("trpg") and getattr(ctx.get("trpg"), "live", False):
         return ctx

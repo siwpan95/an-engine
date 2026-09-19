@@ -6,10 +6,10 @@
 模块级变量可被外部 import 覆盖，方便运行时调整。
 
 用法：
-    from alloy.core.config import CELL, COLS, ROWS, WINDOW_W, WINDOW_H
+    from allin_engine.core.config import CELL, COLS, ROWS, WINDOW_W, WINDOW_H
 
     # 运行时覆盖（可选）
-    import alloy.core.config as cfg
+    import allin_engine.core.config as cfg
     cfg.CELL = 32
     cfg.COLS = 60
 """

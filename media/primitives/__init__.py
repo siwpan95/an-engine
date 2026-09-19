@@ -7,9 +7,9 @@
 import math
 from PIL import ImageDraw
 
-from alloy.media.color_system import ColorGenerator
-from alloy.media.audio_map import MultiAudioMapping
-from alloy.media.utils import parse_position, parse_size
+from allin_engine.media.color_system import ColorGenerator
+from allin_engine.media.audio_map import MultiAudioMapping
+from allin_engine.media.utils import parse_position, parse_size
 
 
 class RenderPrimitive:
@@ -107,23 +107,23 @@ def create_primitive(config: dict, width: int, height: int) -> RenderPrimitive:
 
 
 # ==================== 导入所有原语以触发注册 ====================
-from alloy.media.primitives.bars import BarsPrimitive
-from alloy.media.primitives.spikes import SpikesPrimitive
-from alloy.media.primitives.waveform import WaveformPrimitive
-from alloy.media.primitives.vortex import VortexPrimitive
-from alloy.media.primitives.circle_map import CircleMapPrimitive
-from alloy.media.primitives.particles import ParticlesPrimitive
-from alloy.media.primitives.grid import GridPrimitive
-from alloy.media.primitives.drawing import DrawingPrimitive
-from alloy.media.primitives.text_rain import TextRainPrimitive
-from alloy.media.primitives.script import ScriptPrimitive
-from alloy.media.primitives.wireframe_3d import Wireframe3DPrimitive
-from alloy.media.primitives.texture import TexturePrimitive
-from alloy.media.primitives.curve import CurvePrimitive
-from alloy.media.primitives.cellular import CellularPrimitive
-from alloy.media.primitives.pulse import PulsePrimitive
-from alloy.media.primitives.gauge import GaugePrimitive
-from alloy.media.primitives.ca import CAPrimitive
-from alloy.media.primitives.particle import ParticlePrimitive
-from alloy.media.primitives.fluid import FluidPrimitive
-from alloy.media.primitives.formula import FormulaPrimitive
+from allin_engine.media.primitives.bars import BarsPrimitive
+from allin_engine.media.primitives.spikes import SpikesPrimitive
+from allin_engine.media.primitives.waveform import WaveformPrimitive
+from allin_engine.media.primitives.vortex import VortexPrimitive
+from allin_engine.media.primitives.circle_map import CircleMapPrimitive
+from allin_engine.media.primitives.particles import ParticlesPrimitive
+from allin_engine.media.primitives.grid import GridPrimitive
+from allin_engine.media.primitives.drawing import DrawingPrimitive
+from allin_engine.media.primitives.text_rain import TextRainPrimitive
+from allin_engine.media.primitives.script import ScriptPrimitive
+from allin_engine.media.primitives.wireframe_3d import Wireframe3DPrimitive
+from allin_engine.media.primitives.texture import TexturePrimitive
+from allin_engine.media.primitives.curve import CurvePrimitive
+from allin_engine.media.primitives.cellular import CellularPrimitive
+from allin_engine.media.primitives.pulse import PulsePrimitive
+from allin_engine.media.primitives.gauge import GaugePrimitive
+from allin_engine.media.primitives.ca import CAPrimitive
+from allin_engine.media.primitives.particle import ParticlePrimitive
+from allin_engine.media.primitives.fluid import FluidPrimitive
+from allin_engine.media.primitives.formula import FormulaPrimitive

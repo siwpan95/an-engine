@@ -28,4 +28,4 @@ jobs:
 
     - name: Run tests
       run: |
-        python -m alloy.test.run_all
+        python -m allin_engine.test.run_all

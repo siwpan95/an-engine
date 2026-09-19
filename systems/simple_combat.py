@@ -13,7 +13,7 @@
 
 使用方式：
 
-    from alloy.systems.simple_combat import SimpleCombat, MobTemplate
+    from allin_engine.systems.simple_combat import SimpleCombat, MobTemplate
 
     # 定义生物模板
     mob = MobTemplate(

@@ -8,7 +8,7 @@
     rainbow   — 彩虹循环色
 """
 import math
-from alloy.media.helpers import hsv_to_rgb, get_energy_color
+from allin_engine.media.helpers import hsv_to_rgb, get_energy_color
 
 
 class ColorGenerator:

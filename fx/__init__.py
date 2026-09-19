@@ -1,5 +1,5 @@
 """
-alloy.fx — 粒子特效子包
+allin_engine.fx — 粒子特效子包
 
 提供:
   - Particle / Emitter / ParticleSystem: 粒子系统核心
@@ -19,7 +19,7 @@ alloy.fx — 粒子特效子包
 从 tools/particle/ 提取并简化。
 """
 
-from alloy.fx.particle import (
+from allin_engine.fx.particle import (
     Particle, Emitter, ForceField, ParticleSystem,
     create_explosion, create_fire, create_rain, create_snow,
     create_fountain, create_smoke, create_sparkle,
@@ -28,7 +28,7 @@ from alloy.fx.particle import (
 
 # 向量化粒子后端（可选，依赖 numpy）。无 numpy 时为 None，核心 fx 仍可导入。
 try:
-    from alloy.fx.particle_np import NumpyParticleSystem
+    from allin_engine.fx.particle_np import NumpyParticleSystem
 except ImportError:
     NumpyParticleSystem = None  # type: ignore
 

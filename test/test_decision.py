@@ -5,7 +5,7 @@ test/test_decision.py — 决策/行为范式子系统单元测试
 覆盖：状态机(FSM/HSM)、行为树、决策树、差分引擎、ECS 脑、固定步长循环、加载器。
 
 运行：
-    cd D:/allin/tools && python -m alloy.test.test_decision
+    cd D:/allin/tools && python -m allin_engine.test.test_decision
 """
 
 import sys
@@ -13,7 +13,7 @@ import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 
-from alloy.ai.decision import (
+from allin_engine.ai.decision import (
     GenericStateMachine,
     create_state_machine,
     HierarchicalStateMachine,
@@ -32,8 +32,8 @@ from alloy.ai.decision import (
     build_brain_from_spec,
     load_decision_config,
 )
-from alloy.core import World, Entity, Component, System, EventBus
-from alloy.core.game_loop import FixedTimestepLoop, GameLoopStats
+from allin_engine.core import World, Entity, Component, System, EventBus
+from allin_engine.core.game_loop import FixedTimestepLoop, GameLoopStats
 
 
 # ══════════════════════════════════════════════════════════
@@ -157,7 +157,7 @@ def test_bt_sequence_fault():
 
 def test_bt_inverter():
     bb = Blackboard({})
-    from alloy.ai.decision import Inverter, Condition
+    from allin_engine.ai.decision import Inverter, Condition
     cond = Condition("c", lambda ctx: False)
     inv = Inverter("inv", cond)
     tree = BehaviorTree(inv, bb)

@@ -5,7 +5,7 @@ test/test_combat.py — 战斗系统单元测试
 战斗引擎 (CombatState / CombatEngine)。
 
 运行：
-    cd D:/allin && python -m alloy.test.test_combat
+    cd D:/allin && python -m allin_engine.test.test_combat
 """
 
 import sys
@@ -13,7 +13,7 @@ import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 
-from alloy.systems.combat import (
+from allin_engine.systems.combat import (
     Card, CardDeck, CardLibrary,
     Enemy, EnemyInstance, Intent, IntentType, EnemyLibrary,
     CombatState, CombatEngine,

@@ -25,7 +25,7 @@ except ImportError:
     HAS_NUMPY = False
     np = None  # type: ignore
 
-from alloy.audio.synth import (
+from allin_engine.audio.synth import (
     OscType, EnvShape, ADSRParams,
     oscillator, make_envelope, note_to_freq,
     SR,

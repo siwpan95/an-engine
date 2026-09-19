@@ -1,5 +1,5 @@
 """
-alloy.utils — 工具层子包
+allin_engine.utils — 工具层子包
 
 提供:
   - load_cjk_font:      CJK 字体加载（多平台 + 本地优先）
@@ -11,7 +11,7 @@ alloy.utils — 工具层子包
   - TextFormatter:     文本格式化工具
 """
 
-from alloy.utils.font import (
+from allin_engine.utils.font import (
     load_cjk_font,
     load_cjk_tk_font,
     load_local_font,
@@ -23,9 +23,9 @@ from alloy.utils.font import (
     list_local_fonts,
     clear_font_cache,
 )
-from alloy.utils.json_loader import JSONLoader
-from alloy.utils.logger import Logger
-from alloy.utils.text_fmt import TextFormatter
+from allin_engine.utils.json_loader import JSONLoader
+from allin_engine.utils.logger import Logger
+from allin_engine.utils.text_fmt import TextFormatter
 
 __all__ = [
     "load_cjk_font",

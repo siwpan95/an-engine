@@ -2,7 +2,7 @@
 可逆装配内核 — Context（注册即回滚）
 ====================================
 
-源自 Cordis 的三个核心算子，为 alloy 提供声明式装配：
+源自 Cordis 的三个核心算子，为 allin_engine 提供声明式装配：
 
     provide(key, service, *, dispose=None)   注册服务，注册动作压入 dispose 栈
     get(key, default=...)                    依赖查找，缺失即装配期报错

@@ -5,7 +5,7 @@ test/test_mod_loader.py — ModLoader 数据驱动集成测试
 ModManager 的 Mod 发现、地图解析、传送门/机关数据驱动链路。
 
 运行：
-    cd D:/allin && python -m alloy.test.test_mod_loader
+    cd D:/allin && python -m allin_engine.test.test_mod_loader
 """
 
 import sys
@@ -16,8 +16,8 @@ from pathlib import Path
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 
-from alloy.systems.combat import CardLibrary, EnemyLibrary
-from alloy.systems.mod_loader import (
+from allin_engine.systems.combat import CardLibrary, EnemyLibrary
+from allin_engine.systems.mod_loader import (
     ModManager, MapManager, MapDef, ModManifest,
     PortalDef, MechanismDef, MechanismAction,
 )
