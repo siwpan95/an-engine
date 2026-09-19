@@ -1,0 +1,21 @@
+{
+  "description": "Continuous CA: Lenia organic lifeforms",
+  "category": "continuous",
+  "rule_family": "lenia",
+  "species_params": {
+    "orbium":    {"kernel_radius": 10, "mu": 0.15, "sigma": 0.015, "dt": 0.1},
+    "hydro":     {"kernel_radius": 20, "mu": 0.12, "sigma": 0.018, "dt": 0.15},
+    "parasite":  {"kernel_radius": 15, "mu": 0.18, "sigma": 0.012, "dt": 0.08},
+    "frother":   {"kernel_radius": 8,  "mu": 0.20, "sigma": 0.014, "dt": 0.12},
+    "geminium":  {"kernel_radius": 12, "mu": 0.14, "sigma": 0.016, "dt": 0.1},
+    "scedaseum": {"kernel_radius": 18, "mu": 0.11, "sigma": 0.020, "dt": 0.13}
+  },
+  "rules": [
+    {"name": "lenia", "species": "orbium", "description": "Classic Orbium organism"},
+    {"name": "lenia_hydro", "species": "hydro", "description": "Hydroathecus flowing life"},
+    {"name": "lenia_parasite", "species": "parasite", "description": "Parasite swarm organisms"},
+    {"name": "lenia_frother", "species": "frother", "description": "Frothing bubble organisms"},
+    {"name": "lenia_geminium", "species": "geminium", "description": "Geminium twin organisms"},
+    {"name": "lenia_scedaseum", "species": "scedaseum", "description": "Scedaseum spread organisms"}
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "description": "Complex cellular automaton rules with emergent behavior",
+  "category": "complex",
+  "rules": [
+    {
+      "name": "langtons_loop",
+      "rule_type": "langtons_loop",
+      "num_states": 8,
+      "description": "Langton's self-replicating loop"
+    },
+    {
+      "name": "snowflake",
+      "rule_type": "snowflake",
+      "num_states": 8,
+      "params": {"num_states": 8, "base_prob": 0.02, "axis_prob": 0.15},
+      "description": "6-fold dendritic crystal growth"
+    },
+    {
+      "name": "snowflake_dense",
+      "rule_type": "snowflake",
+      "num_states": 8,
+      "params": {"num_states": 8, "base_prob": 0.04, "axis_prob": 0.25},
+      "description": "Dense snowflake growth"
+    },
+    {
+      "name": "snowflake_smooth",
+      "rule_type": "snowflake",
+      "num_states": 16,
+      "params": {"num_states": 16, "base_prob": 0.01, "axis_prob": 0.10},
+      "description": "Smooth gradient snowflake"
+    },
+    {
+      "name": "cyclic",
+      "rule_type": "cyclic",
+      "num_states": 14,
+      "params": {"n_colors": 14, "threshold": 1},
+      "description": "Greenberg-Hastings spiral waves"
+    },
+    {
+      "name": "cyclic_3",
+      "rule_type": "cyclic",
+      "num_states": 3,
+      "params": {"n_colors": 3, "threshold": 1},
+      "description": "3-color cyclic spiral waves"
+    },
+    {
+      "name": "cyclic_6",
+      "rule_type": "cyclic",
+      "num_states": 6,
+      "params": {"n_colors": 6, "threshold": 1},
+      "description": "6-color cyclic waves"
+    },
+    {
+      "name": "cyclic_24",
+      "rule_type": "cyclic",
+      "num_states": 24,
+      "params": {"n_colors": 24, "threshold": 2},
+      "description": "24-color spiral waves (threshold 2)"
+    },
+    {
+      "name": "hodgepodge",
+      "rule_type": "hodgepodge",
+      "num_states": 20,
+      "params": {"num_states": 20, "k1": 1, "k2": 8, "g": 1.0},
+      "description": "BZ reaction-diffusion spirals"
+    },
+    {
+      "name": "hodgepodge_fast",
+      "rule_type": "hodgepodge",
+      "num_states": 10,
+      "params": {"num_states": 10, "k1": 1, "k2": 5, "g": 0.8},
+      "description": "Fast hodgepodge spirals"
+    },
+    {
+      "name": "hodgepodge_dense",
+      "rule_type": "hodgepodge",
+      "num_states": 30,
+      "params": {"num_states": 30, "k1": 2, "k2": 12, "g": 1.0},
+      "description": "Dense hodgepodge (30 states)"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "description": "Multi-state cellular automaton rules",
+  "category": "multi_state",
+  "rules": [
+    {
+      "name": "brians_brain",
+      "rule_type": "brians_brain",
+      "num_states": 3,
+      "description": "Brian's Brain: oscillating gliders"
+    },
+    {
+      "name": "wireworld",
+      "rule_type": "wireworld",
+      "num_states": 4,
+      "description": "Logic circuit simulation"
+    },
+    {
+      "name": "forest_fire",
+      "rule_type": "forest_fire",
+      "num_states": 3,
+      "params": {"grow_prob": 0.01, "lightning_prob": 0.001},
+      "description": "Forest fire model"
+    },
+    {
+      "name": "forest_fire_fast",
+      "rule_type": "forest_fire",
+      "num_states": 3,
+      "params": {"grow_prob": 0.05, "lightning_prob": 0.005},
+      "description": "Fast-spreading forest fire"
+    },
+    {
+      "name": "forest_fire_dense",
+      "rule_type": "forest_fire",
+      "num_states": 3,
+      "params": {"grow_prob": 0.03, "lightning_prob": 0.002},
+      "description": "Dense forest fire"
+    },
+    {
+      "name": "crystal_growth",
+      "rule_type": "crystal_growth",
+      "num_states": 3,
+      "params": {"growth_threshold": 3, "freeze_prob": 0.1},
+      "description": "Crystal / snowflake growth"
+    },
+    {
+      "name": "crystal_growth_fast",
+      "rule_type": "crystal_growth",
+      "num_states": 3,
+      "params": {"growth_threshold": 1, "freeze_prob": 0.3},
+      "description": "Fast crystal growth"
+    },
+    {
+      "name": "crystal_growth_sparse",
+      "rule_type": "crystal_growth",
+      "num_states": 3,
+      "params": {"growth_threshold": 4, "freeze_prob": 0.05},
+      "description": "Sparse crystal growth"
+    },
+    {
+      "name": "sandpile",
+      "rule_type": "sandpile",
+      "num_states": 4,
+      "description": "Abelian sandpile (toppling model)"
+    }
+  ]
+}

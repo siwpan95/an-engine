@@ -85,3 +85,14 @@ include = ["allin_engine*"]
 #   或用环境变量 ALLIN_FONT_PATH（单个字体）/ ALLIN_FONTS_DIR（字体目录）指定
 [tool.setuptools.exclude-package-data]
 allin_engine = ["fonts/*"]
+
+# media 子系统的配方数据（4980 个 .json，约 3MB）是引擎运行必需的一部分，
+# 因上面关掉了 include-package-data 而不会自动收录，故在此显式声明。
+[tool.setuptools.package-data]
+allin_engine = [
+    "media/*.json",
+    "media/*/*.json",
+    "media/*/*/*.json",
+    "media/*/*/*/*.json",
+    "media/*.md",
+]
