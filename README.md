@@ -1,6 +1,9 @@
 # allin-engine — 统一游戏引擎
 
-从 G:\ 下 100+ 个项目中提炼的通用 Python 游戏引擎（独立仓 siwpan/an-engine，本地 G:\repos\an-engine），融合 ECS 架构、事件总线、世界模型、卡牌战斗、AI 叙事、音频合成等能力。
+> 仓库：<https://gitee.com/siwpan/an-engine> ｜ 许可：MIT（见 [LICENSE](LICENSE)）
+> 注：文中 <PATH> 为路径占位符，请替换为你本机实际的目录 / 可执行文件路径。
+
+从 <PATH> 下 100+ 个项目中提炼的通用 Python 游戏引擎（独立仓 siwpan/an-engine，本地 <PATH>），融合 ECS 架构、事件总线、世界模型、卡牌战斗、AI 叙事、音频合成等能力。
 
 ## 架构分层
 
@@ -85,13 +88,13 @@ c2 = Character(ctx=ctx)
 
 运行示例：
 ```bash
-cd G:/repos/an-engine && python allin_engine/example_quickstart.py
-cd G:/repos/an-engine && python allin_engine/example_decision_ai.py
+cd <PATH> && python allin_engine/example_quickstart.py
+cd <PATH> && python allin_engine/example_decision_ai.py
 ```
 
 运行测试（484 个）：
 ```bash
-cd G:/repos/an-engine && python -m allin_engine.test.run_all
+cd <PATH> && python -m allin_engine.test.run_all
 ```
 
 ## 决策 / 行为范式（状态机 · 行为树 · 决策树 · 差分引擎）
@@ -158,7 +161,7 @@ engine.advance(0.05)         # 按 1/60 固定步长切分多次 world.update，
 
 ## TRPG 规则内核（D20 并入 · R2）
 
-`allin_engine.trpg` 是 D20（D&D-GURPS 变体角色构建器，siwpan 项目，原 G:\local\D20）规则内核的
+`allin_engine.trpg` 是 D20（D&D-GURPS 变体角色构建器，siwpan 项目，原 <PATH>）规则内核的
 engine 化版本：14 个子系统（属性/装备/优缺点/天赋/技术/种族/背景/专长/技能/骰子/衍生/
 法术位/休整/战斗宏/角色卡）挂到 allin_engine 的可逆装配内核上，事件骑共享 EventBus，
 `preset_trpg(ctx)` 与其它标准预设同一套装配协议。
