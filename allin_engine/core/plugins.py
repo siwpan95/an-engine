@@ -42,6 +42,7 @@ __all__ = [
     "preset_audio",
     "preset_ai_brain",
     "preset_trpg",
+    "preset_media",
     "STANDARD_PRESETS",
 ]
 
@@ -164,6 +165,22 @@ def preset_trpg(ctx: Context) -> Context:
     return _preset(ctx)
 
 
+def preset_media(ctx: Context) -> Context:
+    """媒体子系统层（J2 S2/S3）：公式引擎 + 效果原语 + CA 规则引擎。
+
+    'media' 服务 = FormulaEngine 实例（公式编译/模板库）。效果原语与 CA 配方
+    为纯函数/数据模块，无需注册。幂等：已装则复用。装配实现见
+    allin_engine.media.preset。
+
+    补记（2026-09-24）：本函数为**补写**。core/profiles.py 自 J2 S2 起就引用
+    preset_media，但 bd70af2（2026-09-20）补进 media 文件时漏改本文件，
+    导致 `python -m allin_engine dump-profile` 一直 ImportError 硬失败。
+    """
+    from allin_engine.media.preset import preset_media as _preset
+
+    return _preset(ctx)
+
+
 #: 标准预设索引（供 --dump-profile 与 preset 装配使用）
 STANDARD_PRESETS = {
     "core": preset_core,
@@ -173,4 +190,5 @@ STANDARD_PRESETS = {
     "audio": preset_audio,
     "ai_brain": preset_ai_brain,
     "trpg": preset_trpg,
+    "media": preset_media,
 }
