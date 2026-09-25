@@ -77,7 +77,10 @@ allin-test = "allin_engine.test.run_all:main"
 include-package-data = false
 
 [tool.setuptools.packages.find]
-include = ["allin_engine*"]
+# alloy 是**向后兼容别名包**（引擎旧名 → allin_engine）。见 alloy/__init__.py：
+# 下游 siwpan/d20 的 shim 全部按旧名 `alloy.trpg.*` 导入，改名后失效；
+# 在引擎侧补一个别名包 = 改 1 处，下游零改动。
+include = ["allin_engine*", "alloy*"]
 
 # 双保险：即便将来恢复 include-package-data，字体也不进包。
 # 字体按需自备，见 README「字体」一节：
@@ -85,6 +88,7 @@ include = ["allin_engine*"]
 #   或用环境变量 ALLIN_FONT_PATH（单个字体）/ ALLIN_FONTS_DIR（字体目录）指定
 [tool.setuptools.exclude-package-data]
 allin_engine = ["fonts/*"]
+alloy = ["*"]
 
 # media 子系统的配方数据（4980 个 .json，约 3MB）是引擎运行必需的一部分，
 # 因上面关掉了 include-package-data 而不会自动收录，故在此显式声明。
