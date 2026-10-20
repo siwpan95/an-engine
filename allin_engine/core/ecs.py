@@ -11,6 +11,7 @@ ECS 架构核心 — 类型安全版本
 
 from __future__ import annotations
 
+import warnings
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
 from dataclasses import dataclass
@@ -187,6 +188,10 @@ class System(ABC):
     #: 所属相位（``pre`` / ``update`` / ``post``），缺省 ``update``。
     #: ``pre`` 适合输入采样与时间推进，``post`` 适合表现层同步/清理。
     phase: ClassVar[str] = PHASE_UPDATE
+    #: 声明"读哪些组件" / "写哪些组件"（**只用于冲突检测与告警，不用于并行调度**）。
+    #: 不声明 = 不参与检查；声明了才能发现"两个系统同优先级写同一组件"这种隐性顺序依赖。
+    reads: ClassVar[Tuple[Type["Component"], ...]] = ()
+    writes: ClassVar[Tuple[Type["Component"], ...]] = ()
 
     @abstractmethod
     def update(self, world: "World", dt: float) -> None:
@@ -478,8 +483,12 @@ class World:
 
     # ── 系统管理 ──────────────────────────────────────
 
-    def add_system(self, system: System) -> "World":
+    def add_system(self, system: System, *, warn_conflicts: bool = True) -> "World":
         """添加系统，标记需要重新排序。返回 self 支持链式调用。
+
+        ``warn_conflicts=True`` 时，若新系统与已注册系统**同相位、同 priority**
+        且读写集合重叠，会发一条 ``RuntimeWarning``——这是"隐性顺序依赖"，
+        不声明就发现不了。不想看告警就显式传 ``False``。
 
         用法：
             world.add_system(MovementSystem()).add_system(RenderSystem())
@@ -487,9 +496,79 @@ class World:
         phase = getattr(system, "phase", PHASE_UPDATE)
         if phase not in PHASE_ORDER:
             raise ValueError(f"未知系统相位 {phase!r}；可选 {PHASE_ORDER}")
+        if warn_conflicts:
+            for c in self._conflicts_with(system):
+                warnings.warn(
+                    f"{type(system).__name__} 与 {c['other']} 同相位({c['phase']})、"
+                    f"同 priority({c['priority']}) 且 {c['reason']}："
+                    f"{', '.join(c['components'])}；请显式调整 priority 或 phase",
+                    RuntimeWarning, stacklevel=2)
         self.systems.append(system)
         self._systems_sorted = False
         return self
+
+    def _conflicts_with(self, system: System) -> List[dict]:
+        """一个系统与已注册系统之间的读写冲突（同相位 + 同 priority）。"""
+        out: List[dict] = []
+        phase = getattr(system, "phase", PHASE_UPDATE)
+        w_new = set(getattr(system, "writes", ()) or ())
+        r_new = set(getattr(system, "reads", ()) or ())
+        if not (w_new or r_new):
+            return out
+        for other in self.systems:
+            if getattr(other, "phase", PHASE_UPDATE) != phase:
+                continue
+            if other.priority != system.priority:
+                continue
+            w_old = set(getattr(other, "writes", ()) or ())
+            r_old = set(getattr(other, "reads", ()) or ())
+            reason = None
+            hit = set()
+            if w_new & w_old:
+                reason = "都写"
+                hit = w_new & w_old
+            elif w_new & r_old:
+                reason = "一个写、另一个读"
+                hit = w_new & r_old
+            elif r_new & w_old:
+                reason = "一个读、另一个写"
+                hit = r_new & w_old
+            if reason:
+                out.append({"other": type(other).__name__, "phase": phase,
+                            "priority": system.priority, "reason": reason,
+                            "components": sorted(c.__name__ for c in hit)})
+        return out
+
+    def check_conflicts(self) -> List[dict]:
+        """全量检查：返回所有"同相位 + 同 priority + 读写重叠"的系统对。
+
+        这是**告警**不是错误：Python 单线程下系统仍按注册顺序执行，
+        只是这个顺序是隐式的，改代码时容易踩。CI 里可以断言它为空。
+        """
+        out: List[dict] = []
+        for i, s in enumerate(self.systems):
+            for other in self.systems[i + 1:]:
+                if getattr(other, "phase", PHASE_UPDATE) != getattr(s, "phase", PHASE_UPDATE):
+                    continue
+                if other.priority != s.priority:
+                    continue
+                w1 = set(getattr(s, "writes", ()) or ())
+                r1 = set(getattr(s, "reads", ()) or ())
+                w2 = set(getattr(other, "writes", ()) or ())
+                r2 = set(getattr(other, "reads", ()) or ())
+                reason, hit = None, set()
+                if w1 & w2:
+                    reason, hit = "都写", w1 & w2
+                elif w1 & r2:
+                    reason, hit = "一个写、另一个读", w1 & r2
+                elif r1 & w2:
+                    reason, hit = "一个读、另一个写", r1 & w2
+                if reason:
+                    out.append({"a": type(s).__name__, "b": type(other).__name__,
+                                "phase": getattr(s, "phase", PHASE_UPDATE),
+                                "priority": s.priority, "reason": reason,
+                                "components": sorted(c.__name__ for c in hit)})
+        return out
 
     def get_system(self, system_type: Type[T]) -> Optional[T]:
         """按类型获取系统。

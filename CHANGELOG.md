@@ -31,6 +31,14 @@
 
 ### Added
 
+- **系统读写声明与冲突告警（2026-10-20）**：把"隐式执行顺序"变成可检查的。
+  - `System.reads` / `System.writes`（类属性，缺省空元组 = 不参与检查）。
+  - `World.check_conflicts()`：返回所有「同相位 + 同 priority + 读写集合重叠」的系统对，
+    带 `reason`（都写 / 一个写另一个读）与重叠组件名。**告警不是错误**——执行顺序不变。
+  - `World.add_system(system, warn_conflicts=True)`：注册时即对**已注册系统**做一次检查，
+    冲突发 `RuntimeWarning`；`warn_conflicts=False` 可静默。
+  - 不声明读写集合的系统完全不受影响（原有 553 项测试全绿）；新增 10 项，套件 563。
+
 - **系统相位 + 延迟事件（2026-10-20）**：解决"系统遍历时被自己触发的事件回头改容器"。
   - `System.phase` ∈ `pre` / `update` / `post`（缺省 `update`）。排序键改为
     **先相位、后 priority**——相位是硬顺序，priority 只在相位内部起作用。

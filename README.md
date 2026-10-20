@@ -181,7 +181,7 @@ engine.advance(0.05)         # 按 1/60 固定步长切分多次 world.update，
 
 | 模块 | 说明 | 行数 |
 |------|------|------|
-| `core/ecs.py` | Entity-Component-System：自增ID + 链式调用 + 类型安全；**组件倒排索引**（查询走最小桶）、**实体代际**（旧句柄可识别）、**结构变更队列** `world.commands`、**系统相位** pre/update/post（相位优先于 priority） | 676 |
+| `core/ecs.py` | Entity-Component-System：自增ID + 链式调用 + 类型安全；**组件倒排索引**（查询走最小桶）、**实体代际**（旧句柄可识别）、**结构变更队列** `world.commands`、**系统相位** pre/update/post（相位优先于 priority）、**读写声明与冲突告警** `check_conflicts()` | 780 |
 | `core/event_bus.py` | 松耦合事件总线，递归保护 + 一次性监听 + 装饰器模式；**延迟派发** `emit_deferred()`（相位边界统一 flush，防重入） | 479 |
 | `world/map_graph.py` | 地图导航图：节点/连接/锁定；**边权与折线**、`from_worldspec()` 直接读 worldspec 目录、`route()`/`nearest()`/`world_pos()` | 475 |
 | `world/game_state.py` | 玩家状态 + 游戏状态 + 章节枚举 + to_dict/from_dict | 377 |

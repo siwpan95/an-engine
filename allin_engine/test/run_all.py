@@ -333,6 +333,19 @@ from allin_engine.test.test_trpg import (
     test_trpg_mount_missing_inject_fails, test_trpg_context_repr,
 )
 
+from allin_engine.test.test_system_conflicts import (
+    test_write_write_same_priority_conflicts,
+    test_different_priority_is_not_conflict,
+    test_different_phase_is_not_conflict,
+    test_read_write_same_priority_conflicts,
+    test_no_declarations_never_conflicts,
+    test_add_system_emits_runtime_warning,
+    test_warn_conflicts_false_is_silent,
+    test_conflict_reports_overlapping_components_only,
+    test_multiple_pairs_reported,
+    test_declared_systems_still_run_in_order,
+)
+
 from allin_engine.test.test_system_phases import (
     test_phase_order_beats_priority,
     test_priority_only_orders_within_phase,
@@ -692,6 +705,17 @@ all_tests = [
     test_trpg_waterfall_short_circuit, test_trpg_effect_d20_semantics,
     test_trpg_serial_order, test_trpg_duplicate_service_fails_loud,
     test_trpg_mount_missing_inject_fails, test_trpg_context_repr,
+    # 系统读写声明 + 冲突告警 (10) —— 同相位同优先级读写重叠要显式化
+    test_write_write_same_priority_conflicts,
+    test_different_priority_is_not_conflict,
+    test_different_phase_is_not_conflict,
+    test_read_write_same_priority_conflicts,
+    test_no_declarations_never_conflicts,
+    test_add_system_emits_runtime_warning,
+    test_warn_conflicts_false_is_silent,
+    test_conflict_reports_overlapping_components_only,
+    test_multiple_pairs_reported,
+    test_declared_systems_still_run_in_order,
     # 系统相位 + 延迟事件 (15) —— 相位硬顺序 / 相位边界 flush / 防重入
     test_phase_order_beats_priority,
     test_priority_only_orders_within_phase,
