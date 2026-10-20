@@ -6,7 +6,7 @@ Serializable 子类只需标记需要特殊处理的字段，即可自动序列�
 
 使用方式：
 
-    from core.serializable import Serializable
+    from allin_engine.core.serializable import Serializable
 
     @dataclass
     class MyData(Serializable):

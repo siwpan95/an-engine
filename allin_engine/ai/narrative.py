@@ -5,7 +5,7 @@
 支持场景跳转、撤销/重做、JSON 数据加载、条件表达式求值。
 
 用法：
-    from ai.narrative import NarrativeEngine, Scene, Option, ConditionEvaluator
+    from allin_engine.ai.narrative import NarrativeEngine, Scene, Option, ConditionEvaluator
 
     engine = NarrativeEngine("scenes.json")
     scene = engine.get_current_scene()

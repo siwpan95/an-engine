@@ -6,7 +6,7 @@ DataLibrary — 通用 JSON 数据驱动库基类。
 
 使用方式：
 
-    from core.data_library import DataLibrary
+    from allin_engine.core.data_library import DataLibrary
 
     class CardLibrary(DataLibrary[Card]):
         def __init__(self):

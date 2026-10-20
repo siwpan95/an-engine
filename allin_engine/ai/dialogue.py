@@ -13,7 +13,7 @@
 6. 兜底回复 — 内置或 AI 生成
 
 用法：
-    from ai.dialogue import DialogueEngine
+    from allin_engine.ai.dialogue import DialogueEngine
 
     engine = DialogueEngine(backend="rule")  # 纯规则模式
     reply = engine.respond("你好")

@@ -5,7 +5,7 @@ AI 内容生成器：Ollama/DeepSeek 双后端 + 内置中文模板降级。
 支持通用生成、房间描述、怪物描述、物品描述、对话生成等快捷方法。
 
 用法：
-    from ai.generator import ContentGenerator, GenerationConfig
+    from allin_engine.ai.generator import ContentGenerator, GenerationConfig
 
     config = GenerationConfig(backend="deepseek", model="deepseek-v4-pro")
     gen = ContentGenerator(config)
