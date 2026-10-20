@@ -3,6 +3,13 @@
 > 仓库：<https://gitee.com/siwpan/an-engine> ｜ 许可：MIT（见 [LICENSE](LICENSE)）
 > 注：文中 <PATH> 为路径占位符，请替换为你本机实际的目录 / 可执行文件路径。
 
+[![PyPI](https://img.shields.io/pypi/v/allin-engine)](https://pypi.org/project/allin-engine/)
+[![Python](https://img.shields.io/pypi/pyversions/allin-engine)](https://pypi.org/project/allin-engine/)
+[![License](https://img.shields.io/pypi/l/allin-engine)](https://pypi.org/project/allin-engine/)
+
+**PyPI**：<https://pypi.org/project/allin-engine/> ｜ **发行名 `allin-engine` / 导入名 `allin_engine`**
+（旧名 `alloy` 仍作为兼容别名包随包分发，见下文「安装」）。
+
 从 <PATH> 下 100+ 个项目中提炼的通用 Python 游戏引擎（独立仓 siwpan/an-engine，本地 <PATH>），融合 ECS 架构、事件总线、世界模型、卡牌战斗、AI 叙事、音频合成等能力。
 
 ## 架构分层
@@ -32,6 +39,28 @@ utils/     通用工具 (JSON/日志/字体/文本)      ← 零依赖
 
 ## 安装
 
+**方式一 · 从 PyPI 安装（推荐，用库）**
+
+```bash
+# 核心（零硬依赖：ECS + EventBus + World + Systems）
+pip install allin-engine
+
+# 渲染 + 音频增强
+pip install "allin-engine[render,audio]"
+
+# 全部可选功能
+pip install "allin-engine[all]"
+```
+
+装完校验（注意导入名是下划线，发行名是连字符）：
+
+```bash
+python -c "import allin_engine; print(allin_engine.__version__)"
+allin-test            # 随包安装的测试入口
+```
+
+**方式二 · 源码 editable 安装（改引擎 / 开发）**
+
 ```bash
 # 核心（零依赖，ECS + EventBus + World + Systems）
 pip install -e .
@@ -42,6 +71,8 @@ pip install -e ".[render,audio]"
 # 全部功能
 pip install -e ".[all]"
 ```
+
+> 兼容别名：`alloy` 包随 `allin-engine` 一同分发，旧代码 `import alloy.trpg...` 无需改动。
 
 ## 快速开始
 
