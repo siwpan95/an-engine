@@ -197,13 +197,30 @@ engine 化版本：14 个子系统（属性/装备/优缺点/天赋/技术/种�
 法术位/休整/战斗宏/角色卡）挂到 allin_engine 的可逆装配内核上，事件骑共享 EventBus，
 `preset_trpg(ctx)` 与其它标准预设同一套装配协议。
 
-- **并入口径**：D20 自带的 mini-Cordis 容器与 YAML loader 不进入引擎（保留在 D20 仓库）；
+- **并入口径**：D20 自带的 mini-Cordis 容器与 YAML loader 不进入引擎（历史形态，随 D20 仓一并下线）；
   allin_engine 侧由 `TrpgContext` 适配层 + 代码预设替代；`condition` 子系统尚未接线（无状态字段、
   未进装配），暂不并入。
 - **多角色**：一个宿主 Context 一个内核；每角色独立装配用 `ctx.fork(name)` + preset，
   fork 销毁即整体回收。
 - **借鉴记账**：规则数据与 14 服务源码自 D20 迁移，行为契约由测试钉住（+105 项，
   与 D20 原测试期望逐一对齐）；D20 后续经此内核反向重构。
+
+### 2026-10-20：D20 界面壳并入，siwpan/d20 仓确诊冗余后删除
+
+R2 之后 D20 仓只剩「薄 shim（`d20/` 5 文件 77 行，全部转发 `allin_engine.trpg`）+ 界面壳」，
+规则代码为零。界面壳已整体迁入本仓，原仓（Gitee `siwpan/d20` + 本地 `G:\repos\d20`）删除：
+
+| 原 D20 路径 | 本仓落点 |
+|---|---|
+| `cli.py` | `allin_engine/trpg/cli.py`（控制台脚本 `allin-trpg`） |
+| `gui/` | `allin_engine/trpg/gui/`（控制台脚本 `allin-trpg-gui`） |
+| `data/sample_thief.py`、`盗贼.txt` | `allin_engine/trpg/samples/` |
+| `docs/*.md` | `allin_engine/trpg/docs/` |
+| `web/`（TS WebExtension 实验区） | `web/trpg/` |
+| `mvp_builder.py`、`mvp_gui.py` | **不迁**：转发到 `cli`/`gui` 的兼容壳，其目标单文件版本早已不存在，全量 grep 无任何外部引用 |
+
+验收：`python -m allin_engine.trpg.samples.sample_thief` 的输出与黄金样例 `盗贼.txt`
+的 12 个稳定关键字段**逐字段一致**（属性/优点/缺点/天赋/技术/HP 65 | AC 20/近战+11 远程+8/三豁免）。
 
 ## 本地字体加载
 

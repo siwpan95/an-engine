@@ -69,6 +69,9 @@ Issues = "https://gitee.com/siwpan/an-engine/issues"
 
 [project.scripts]
 allin-test = "allin_engine.test.run_all:main"
+# TRPG 规则界面壳（2026-10-20 自 siwpan/d20 并入，原仓确诊冗余后删除）
+allin-trpg = "allin_engine.trpg.cli:main"
+allin-trpg-gui = "allin_engine.trpg.gui:main"
 
 [tool.setuptools]
 # 关闭「自动收录被 git 跟踪的包内文件」。pyproject 模式下该开关默认为 True，
@@ -99,4 +102,6 @@ allin_engine = [
     "media/*/*/*.json",
     "media/*/*/*/*.json",
     "media/*.md",
+    # TRPG 黄金样例验收基线（自 siwpan/d20 并入）
+    "trpg/samples/*.txt",
 ]

@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "D20 角色构筑器",
+  "version": "1.0.0",
+  "description": "Cordis 式 D&D/GURPS 变体角色构筑器浏览器扩展（TypeScript 移植，子系统即插件，可热挂载/卸载）。",
+  "action": {
+    "default_title": "D20 角色构筑器",
+    "default_popup": "index.html"
+  },
+  "permissions": []
+}

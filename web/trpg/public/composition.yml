@@ -1,0 +1,45 @@
+# cordis.yml 风格组合（与 deepseek-harness 的 cordis.yml 同构）
+# 运行时可由 loader.loadCompositionYaml(ctx, text) 加载；默认应用启动时直接用
+# composition.ts 的 TS 常量装配（浏览器原生、零依赖）。
+- id: attributes
+  service: AttributesService
+  inject: []
+- id: equipment
+  service: EquipmentService
+  inject: []
+- id: perks
+  service: PerksService
+  inject: []
+- id: techniques
+  service: TechniquesService
+  inject: []
+- id: race
+  service: RaceService
+  inject: []
+- id: background
+  service: BackgroundService
+  inject: []
+- id: feats
+  service: FeatsService
+  inject: []
+- id: skills
+  service: SkillsService
+  inject: [perks, feats]
+- id: dice
+  service: DiceService
+  inject: [skills, feats]
+- id: derived
+  service: DerivedService
+  inject: [skills, equipment, feats, race]
+- id: slots
+  service: SpellSlotsService
+  inject: [skills]
+- id: rest
+  service: RestService
+  inject: [derived, dice, slots, feats, race]
+- id: combat
+  service: CombatService
+  inject: [derived, equipment, dice, techniques, skills, slots, feats, rest]
+- id: sheet
+  service: SheetService
+  inject: [perks, skills, equipment, derived, slots, race, background, feats, rest]

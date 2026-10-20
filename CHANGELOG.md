@@ -8,6 +8,19 @@
 
 ### Added
 
+- **D20 界面壳并入（2026-10-20，siwpan/d20 仓确诊冗余后删除）**：
+  D20 仓自 R2（2026-08-27）起已不含任何规则代码——`d20/` 只剩 5 个文件 77 行，全部是转发
+  `allin_engine.trpg` 的薄 shim。经逐项比对确认冗余后，把其剩余内容整体迁入本仓，原仓删除：
+  - `allin_engine/trpg/cli.py`：TRPG 命令行界面（控制台脚本 `allin-trpg`）；
+  - `allin_engine/trpg/gui/`：tkinter 图形界面（控制台脚本 `allin-trpg-gui`）；
+  - `allin_engine/trpg/samples/`：`sample_thief.py` + 黄金样例 `盗贼.txt`（package-data 随包分发）；
+  - `allin_engine/trpg/docs/`：`content-expansion-plan.md`、`cordis-research.md`；
+  - `web/trpg/`：TypeScript WebExtension 实验区（原 `d20/web/`，已排除 `node_modules`/`dist`）。
+  - 刻意不迁 `mvp_builder.py` / `mvp_gui.py`：二者是转发到 `cli`/`gui` 的兼容壳，其目标
+    「MVP 单文件版本」早已不存在，全量 grep 无任何外部仓引用。
+  - 验收：`python -m allin_engine.trpg.samples.sample_thief` 与 `盗贼.txt` 的 12 个稳定
+    关键字段逐字段一致；引擎套件 489/489 通过（未动内核）。
+
 - **TRPG 规则内核并入（R2，自 D20）**：
   - `allin_engine/trpg/`：D20（D&D-GURPS 变体角色构建器，G:\local\D20）的 14 个子系统（属性/装备/优缺点/天赋/技术/种族/背景/专长/技能/骰子/衍生/法术位/休整/战斗宏/角色卡）+ 数据中枢 `data.py`（融合 D&D 三宝书与 GURPS Basic Set，单一事实来源）；
   - `TrpgContext`：allin_engine `Context` + `EventBus` 上的 D20 兼容适配层（`ctx.<service>` 属性代理、emit/waterfall/serial/parallel 分发、Service 插件基类）；事件骑宿主共享总线，构造即挂宿主 effect 栈（注册即回滚），dispose 逆序退订全部事件并清空服务；
