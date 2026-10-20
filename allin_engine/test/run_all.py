@@ -333,6 +333,22 @@ from allin_engine.test.test_trpg import (
     test_trpg_mount_missing_inject_fails, test_trpg_context_repr,
 )
 
+from allin_engine.test.test_ecs_v2 import (
+    test_query_matches_linear_scan, test_empty_types_yield_everything,
+    test_first_match_and_absent_type, test_index_updates_on_component_add_remove,
+    test_clear_components_deindexes, test_remove_entity_by_eid_and_id,
+    test_same_eid_replaces_and_detaches_old,
+    test_add_entity_with_prebuilt_components_indexes_them,
+    test_reset_clears_index_and_detaches, test_generation_increments_on_removal,
+    test_stale_handle_absent_from_queries, test_command_buffer_create_with_components,
+    test_command_buffer_remove_and_component_ops,
+    test_removal_during_iteration_does_not_break,
+    test_update_flushes_pending_commands,
+    test_ops_queued_after_flush_wait_for_next_round,
+    test_command_buffer_clear, test_rare_component_query_is_fast,
+    test_each_over_large_world_under_budget, test_command_buffer_repr_and_len,
+)
+
 from allin_engine.test.test_layout import (
     test_no_root_mirror_dirs, test_no_root_mirror_files,
     test_no_root_file_fossils_in_package, test_packages_find_still_scoped,
@@ -643,6 +659,20 @@ all_tests = [
     test_trpg_waterfall_short_circuit, test_trpg_effect_d20_semantics,
     test_trpg_serial_order, test_trpg_duplicate_service_fails_loud,
     test_trpg_mount_missing_inject_fails, test_trpg_context_repr,
+    # ECS 存储 v2 (20) —— 组件倒排索引 / 实体代际 / 结构变更队列
+    test_query_matches_linear_scan, test_empty_types_yield_everything,
+    test_first_match_and_absent_type, test_index_updates_on_component_add_remove,
+    test_clear_components_deindexes, test_remove_entity_by_eid_and_id,
+    test_same_eid_replaces_and_detaches_old,
+    test_add_entity_with_prebuilt_components_indexes_them,
+    test_reset_clears_index_and_detaches, test_generation_increments_on_removal,
+    test_stale_handle_absent_from_queries, test_command_buffer_create_with_components,
+    test_command_buffer_remove_and_component_ops,
+    test_removal_during_iteration_does_not_break,
+    test_update_flushes_pending_commands,
+    test_ops_queued_after_flush_wait_for_next_round,
+    test_command_buffer_clear, test_rare_component_query_is_fast,
+    test_each_over_large_world_under_budget, test_command_buffer_repr_and_len,
     # layout (4) —— 防「双写镜像」复活（2026-10-20 收口）
     test_no_root_mirror_dirs, test_no_root_mirror_files,
     test_no_root_file_fossils_in_package, test_packages_find_still_scoped,

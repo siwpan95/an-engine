@@ -181,7 +181,7 @@ engine.advance(0.05)         # 按 1/60 固定步长切分多次 world.update，
 
 | 模块 | 说明 | 行数 |
 |------|------|------|
-| `core/ecs.py` | Entity-Component-System 架构，自增ID + 链式调用 + 类型安全 | 434 |
+| `core/ecs.py` | Entity-Component-System：自增ID + 链式调用 + 类型安全；**组件倒排索引**（查询走最小桶）、**实体代际**（旧句柄可识别）、**结构变更队列** `world.commands` | 648 |
 | `core/event_bus.py` | 松耦合事件总线，递归保护 + 一次性监听 + 装饰器模式 | 355 |
 | `world/game_state.py` | 玩家状态 + 游戏状态 + 章节枚举 + to_dict/from_dict | 377 |
 | `systems/combat/` | 回合制卡牌战斗：CombatState + 12种Buff + 敌人意图系统 | 1347 |

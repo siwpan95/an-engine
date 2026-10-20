@@ -14,7 +14,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import Any, ClassVar, Dict, List, Optional, Set, Type, TypeVar
+from typing import Any, ClassVar, Dict, List, Optional, Sequence, Set, Type, TypeVar
 
 T = TypeVar("T")
 C = TypeVar("C", bound="Component")
@@ -75,13 +75,28 @@ class Entity:
         components: 以组件类为键的组件字典
     """
 
-    __slots__ = ("id", "eid", "components")
+    __slots__ = ("id", "eid", "components", "_world", "_generation", "_alive")
 
     def __init__(self, eid: Optional[str] = None, *, entity_id: Optional[int] = None) -> None:
         # id 优先由 World.create_entity 显式传入；脱离 World 直接构造时回退到模块级计数器
         self.id: int = entity_id if entity_id is not None else _next_orphan_id()
         self.eid: Optional[str] = eid
         self.components: Dict[Type[Component], Component] = {}
+        # 归属的 World（游离实体为 None）；用于组件变动时同步倒排索引
+        self._world: Optional["World"] = None
+        # 代际：每次被移出世界 +1。旧句柄靠它识别"这个 id 已经不是我认识的那个实体了"
+        self._generation: int = 0
+        self._alive: bool = True
+
+    @property
+    def generation(self) -> int:
+        """实体代际（移出世界时递增）。"""
+        return self._generation
+
+    @property
+    def is_alive(self) -> bool:
+        """是否仍挂在某个 World 上（被移除/被同名 eid 顶替后为 False）。"""
+        return self._alive
 
     def add(self, comp: Component) -> "Entity":
         """添加组件，返回 self 支持链式调用。
@@ -89,7 +104,10 @@ class Entity:
         用法：
             entity.add(Position(10, 20)).add(Health(100))
         """
-        self.components[type(comp)] = comp
+        ctype = type(comp)
+        self.components[ctype] = comp
+        if self._world is not None:
+            self._world._index_add(ctype, self)
         return self
 
     def get(self, comp_type: Type[T]) -> Optional[T]:
@@ -114,10 +132,16 @@ class Entity:
 
     def remove(self, comp_type: Type[Component]) -> Optional[Component]:
         """移除组件，返回被移除的组件或 None。"""
-        return self.components.pop(comp_type, None)
+        comp = self.components.pop(comp_type, None)
+        if comp is not None and self._world is not None:
+            self._world._index_discard(comp_type, self)
+        return comp
 
     def clear_components(self) -> None:
         """移除所有组件。"""
+        if self._world is not None:
+            for ctype in list(self.components):
+                self._world._index_discard(ctype, self)
         self.components.clear()
 
     def __repr__(self) -> str:
@@ -166,6 +190,86 @@ class System(ABC):
         return True
 
 
+# ─── CommandBuffer ─────────────────────────────────────
+
+class CommandBuffer:
+    """结构变更队列：遍历期间要增删实体/组件时先排队，``World.update`` 末尾统一落地。
+
+    为什么需要：``world.each(...)`` 是生成器，边遍历边 ``remove_entity`` 会让底层
+    dict 变长/变短，直接抛 ``RuntimeError: dictionary changed size during iteration``。
+    把变更排队，遍历期间容器不动，落地时再改。
+
+    用法：
+        for e in world.each(Health):
+            if e.get(Health).hp <= 0:
+                world.commands.remove_entity(e.id)
+
+        ghost = world.commands.create("ghost")   # 先拿到游离实体，可以挂组件
+        ghost.add(Health(10))                    # flush 时随实体一起入世界并建索引
+    """
+
+    __slots__ = ("_world", "_ops", "_flushing")
+
+    def __init__(self, world: "World") -> None:
+        self._world = world
+        self._ops: List[tuple] = []
+        self._flushing: bool = False
+
+    def __len__(self) -> int:
+        return len(self._ops)
+
+    def __repr__(self) -> str:
+        return f"CommandBuffer({len(self._ops)} pending)"
+
+    def clear(self) -> None:
+        self._ops.clear()
+
+    def create(self, eid: Optional[str] = None) -> Entity:
+        """排队创建实体；返回的实体在 flush 之前是游离的（不在世界、不建索引）。"""
+        entity = Entity(eid)
+        self._ops.append(("create", entity))
+        return entity
+
+    def remove_entity(self, key: str | int) -> None:
+        """排队移除实体（eid 或 id）。"""
+        self._ops.append(("remove", key))
+
+    def add_component(self, entity: Entity, comp: Component) -> None:
+        self._ops.append(("add", entity, comp))
+
+    def remove_component(self, entity: Entity, comp_type: Type[Component]) -> None:
+        self._ops.append(("rm", entity, comp_type))
+
+    def flush(self) -> int:
+        """按入队顺序落地，返回实际生效的条数。
+
+        防重入：flush 期间若又产生新操作，留到下一次 flush（不会嵌套执行）。
+        """
+        if self._flushing or not self._ops:
+            return 0
+        self._flushing = True
+        ops, self._ops = self._ops, []
+        applied = 0
+        try:
+            for op in ops:
+                kind = op[0]
+                if kind == "create":
+                    self._world.add_entity(op[1])
+                    applied += 1
+                elif kind == "remove":
+                    if self._world.remove_entity(op[1]) is not None:
+                        applied += 1
+                elif kind == "add":
+                    op[1].add(op[2])
+                    applied += 1
+                elif kind == "rm":
+                    if op[1].remove(op[2]) is not None:
+                        applied += 1
+        finally:
+            self._flushing = False
+        return applied
+
+
 # ─── World ─────────────────────────────────────────────
 
 class World:
@@ -200,6 +304,15 @@ class World:
         # 全局共享数据
         self._data: Dict[str, Any] = {}
 
+        # 组件倒排索引：组件类型 -> {entity.id: Entity}。
+        # 查询时先取"最小的那个桶"再逐个校验，避免每次都全表扫描（1 万实体 3 组件
+        # 的 each() 从 O(n) 降到 O(k)）。索引由 Entity.add/remove 与 add_entity/
+        # remove_entity 共同维护，绕过这些入口直接改 entity.components 会让索引失准。
+        self._comp_index: Dict[Type[Component], Dict[int, Entity]] = {}
+
+        # 结构变更队列：遍历期间要增删实体/组件时先排队，update 末尾统一落地
+        self.commands = CommandBuffer(self)
+
     # ── 实体管理 ──────────────────────────────────────
 
     def create_entity(self, eid: Optional[str] = None) -> Entity:
@@ -229,12 +342,16 @@ class World:
             已添加的实体
         """
         if entity.eid:
-            # 如果旧 eid 已存在，先清理 id 索引
+            # 同名 eid 顶替：旧实体要一并摘掉（id 索引、组件索引、存活标记）
             old = self.entities.get(entity.eid)
             if old is not None and old.id != entity.id:
                 self._entities_by_id.pop(old.id, None)
+                self._detach(old)
             self.entities[entity.eid] = entity
         self._entities_by_id[entity.id] = entity
+        entity._world = self
+        entity._alive = True
+        self._index_entity(entity)
         return entity
 
     def reset_id_counter(self, start: int = 0) -> None:
@@ -274,12 +391,53 @@ class World:
             entity = self.entities.pop(key, None)
             if entity is not None:
                 self._entities_by_id.pop(entity.id, None)
+                self._detach(entity)
             return entity
         else:
             entity = self._entities_by_id.pop(key, None)
             if entity is not None and entity.eid is not None:
                 self.entities.pop(entity.eid, None)
+            if entity is not None:
+                self._detach(entity)
             return entity
+
+    # ── 组件索引（内部） ──────────────────────────────
+
+    def _index_add(self, ctype: Type[Component], entity: Entity) -> None:
+        bucket = self._comp_index.get(ctype)
+        if bucket is None:
+            bucket = self._comp_index[ctype] = {}
+        bucket[entity.id] = entity
+
+    def _index_discard(self, ctype: Type[Component], entity: Entity) -> None:
+        bucket = self._comp_index.get(ctype)
+        if bucket is not None:
+            bucket.pop(entity.id, None)
+
+    def _index_entity(self, entity: Entity) -> None:
+        for ctype in entity.components:
+            self._index_add(ctype, entity)
+
+    def _detach(self, entity: Entity) -> Entity:
+        """把实体从索引上摘掉并标记失效（代际 +1，旧句柄可据此识别）。"""
+        for ctype in list(entity.components):
+            self._index_discard(ctype, entity)
+        entity._alive = False
+        entity._generation += 1
+        entity._world = None
+        return entity
+
+    def _candidates(self, comp_types: Sequence[Type[Component]]) -> Dict[int, Entity]:
+        """返回最小的候选桶；任一类型无实体时返回空桶。"""
+        if not comp_types:
+            return self._entities_by_id
+        buckets = []
+        for t in comp_types:
+            b = self._comp_index.get(t)
+            if not b:
+                return {}
+            buckets.append(b)
+        return min(buckets, key=len)
 
     def entity_count(self) -> int:
         """当前实体总数。"""
@@ -348,18 +506,20 @@ class World:
             # 获取所有有位置且可交互的实体
             entities = world.get_entities_with_components(Position, Interactable)
         """
-        result: List[Entity] = []
-        for entity in self._entities_by_id.values():
-            if entity.has_all(*comp_types):
-                result.append(entity)
-        return result
+        if not comp_types:
+            return list(self._entities_by_id.values())
+        cand = self._candidates(comp_types)
+        return [e for e in cand.values() if e.has_all(*comp_types)]
 
     # 别名，兼容 pywallpaper 风格命名
     find_entities_with = get_entities_with_components
 
     def get_first_with_components(self, *comp_types: Type[Component]) -> Optional[Entity]:
         """返回第一个匹配所有组件的实体，或 None。"""
-        for entity in self._entities_by_id.values():
+        if not comp_types:
+            return next(iter(self._entities_by_id.values()), None)
+        cand = self._candidates(comp_types)
+        for entity in cand.values():
             if entity.has_all(*comp_types):
                 return entity
         return None
@@ -381,7 +541,11 @@ class World:
                 hp = entity.get(Health)
                 ...
         """
-        for entity in self._entities_by_id.values():
+        if not comp_types:
+            yield from self._entities_by_id.values()
+            return
+        cand = self._candidates(comp_types)
+        for entity in cand.values():
             if entity.has_all(*comp_types):
                 yield entity
 
@@ -444,6 +608,16 @@ class World:
         for system in self.systems:
             if system.enabled(self):
                 system.update(self, dt)
+        # 系统里排队的结构变更在这里统一落地：遍历期间不改容器，就没有
+        # "dict changed size during iteration" 这类问题
+        self.commands.flush()
+
+    def flush_commands(self) -> int:
+        """手动落地 ``commands`` 里排队的结构变更（返回生效条数）。
+
+        ``update()`` 会自动调用；只有在不跑 update 的批处理/工具场景才需要手动调。
+        """
+        return self.commands.flush()
 
     # ── 调试辅助 ──────────────────────────────────────
 
@@ -463,8 +637,12 @@ class World:
 
         注意：仅清除内部状态，本 World 的实体 ID 计数器不会重置。
         """
+        for entity in list(self._entities_by_id.values()):
+            self._detach(entity)
         self.entities.clear()
         self._entities_by_id.clear()
+        self._comp_index.clear()
+        self.commands.clear()
         self.systems.clear()
         self._systems_sorted = True
         self._data.clear()

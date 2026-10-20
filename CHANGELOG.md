@@ -31,6 +31,21 @@
 
 ### Added
 
+- **ECS 存储 v2（P0-1 / P0-2，2026-10-20）**：`allin_engine/core/ecs.py`。
+  - **组件倒排索引**：`World._comp_index`（组件类型 → {id: Entity}），查询先取"最小的那个桶"
+    再逐个校验。20k 实体、1% 持有稀组件时，`get_entities_with_components` 从全表扫描的
+    ~2.4ms 降到 ~0.02ms（测试断言 ≥3 倍且绝对 <20ms，实测两个量级）。
+    索引由 `Entity.add/remove/clear_components` 与 `add_entity/remove_entity` 共同维护；
+    **绕过这些入口直接改 `entity.components` 会让索引失准**（docstring 已写明）。
+  - **实体代际**：`Entity.generation` / `Entity.is_alive`。实体被移除、被同名 eid 顶替、
+    或被 `reset()` 时，代际 +1 且标记失效——旧句柄能识别"这个 id 已不是我认识的那个实体"。
+  - **结构变更队列** `world.commands`：`create / remove_entity / add_component /
+    remove_component` 先排队，`World.update()` 末尾统一落地（`flush_commands()` 可手动）。
+    解决"边遍历 `world.each()` 边删实体"抛 `dictionary changed size during iteration`；
+    `commands.create()` 返回**游离实体**，可先挂组件，flush 时随实体一起入世界并建索引。
+  - 兼容性：`Entity` 新增 3 个槽位（`_world/_generation/_alive`），公共 API 与方法签名
+    一个未改；原有 506 项测试全绿。测试 +20（`test_ecs_v2.py`），套件 526 项。
+
 - **存档版本迁移（P0-3，2026-10-20）**：`allin_engine/core/world_serial.py` 增加 schema 头与迁移链。
   - `to_dict()` 输出 `{"schema": {"name": "allin-engine/world", "version": 1}}`；
   - 无 schema 头的历史存档按 **v0** 处理，由内置 `v0 -> v1` 补齐结构后反序列化；
