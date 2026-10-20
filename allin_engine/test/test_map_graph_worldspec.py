@@ -9,9 +9,19 @@ import json
 import tempfile
 from pathlib import Path
 
-import pytest
 
 from allin_engine.world.map_graph import MapGraph, MapNode, WORLDSPEC_VERSION
+
+
+def _expect_raises(exc_type, fn, contains=None):
+    """pytest.raises 的等价物（本仓测试栈不依赖 pytest）。"""
+    try:
+        fn()
+    except exc_type as exc:
+        if contains is not None and contains not in str(exc):
+            raise AssertionError(f"异常消息不含 {contains!r}，实际为：{exc}") from None
+        return exc
+    raise AssertionError(f"预期抛出 {exc_type.__name__}，但没有抛出")
 
 
 def _dir(tmp_path=None) -> Path:
@@ -139,22 +149,19 @@ def test_dangling_edge_skipped_by_default_and_strict_raises(tmp_path=None):
     assert len(g.load_report["skipped_edges"]) == 1
     assert g.load_report["skipped_edges"][0]["b"] == "ghost-99"
 
-    with pytest.raises(ValueError):
-        MapGraph.from_worldspec(spec, strict=True)
+    _expect_raises(ValueError, lambda: MapGraph.from_worldspec(spec, strict=True))
 
 
 def test_spec_version_mismatch_raises(tmp_path=None):
     tmp_path = _dir(tmp_path)
     spec = _write_spec(tmp_path, nodes=[_n("a", 0, 0)], edges=[],
                        spec="worldspec/99")
-    with pytest.raises(ValueError):
-        MapGraph.from_worldspec(spec)
+    _expect_raises(ValueError, lambda: MapGraph.from_worldspec(spec))
 
 
 def test_missing_meta_raises(tmp_path=None):
     tmp_path = _dir(tmp_path)
-    with pytest.raises(FileNotFoundError):
-        MapGraph.from_worldspec(tmp_path)
+    _expect_raises(FileNotFoundError, lambda: MapGraph.from_worldspec(tmp_path))
 
 
 def test_nearest_and_world_pos(tmp_path=None):
@@ -205,7 +212,5 @@ def test_remove_node_cleans_edge_tables(tmp_path=None):
 def test_manual_add_edge_rejects_unknown_endpoint():
     g = MapGraph()
     g.add_node(MapNode("a"))
-    with pytest.raises(KeyError):
-        g.add_edge("a", "ghost", length=1.0)
-    with pytest.raises(ValueError):
-        g.add_edge("a", "a", length=1.0)
+    _expect_raises(KeyError, lambda: g.add_edge("a", "ghost", length=1.0))
+    _expect_raises(ValueError, lambda: g.add_edge("a", "a", length=1.0))

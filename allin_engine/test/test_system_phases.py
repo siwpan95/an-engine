@@ -5,11 +5,19 @@
 容器不会被改，重入不会打断遍历。
 """
 
-import pytest
-
 from allin_engine.core import Component, System, World
 from allin_engine.core.ecs import PHASE_POST, PHASE_PRE, PHASE_UPDATE
 from allin_engine.core.event_bus import EventBus
+
+def _expect_raises(exc_type, fn, contains=None):
+    """pytest.raises 的等价物（本仓测试栈不依赖 pytest）。"""
+    try:
+        fn()
+    except exc_type as exc:
+        if contains is not None and contains not in str(exc):
+            raise AssertionError(f"异常消息不含 {contains!r}，实际为：{exc}") from None
+        return exc
+    raise AssertionError(f"预期抛出 {exc_type.__name__}，但没有抛出")
 
 
 class Marker(Component):
@@ -68,8 +76,7 @@ def test_unknown_phase_rejected_on_add():
             pass
 
     w = World()
-    with pytest.raises(ValueError):
-        w.add_system(Bad())
+    _expect_raises(ValueError, lambda: w.add_system(Bad()))
 
 
 def test_disabled_system_skipped_in_any_phase():
