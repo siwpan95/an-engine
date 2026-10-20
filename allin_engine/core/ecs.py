@@ -14,10 +14,21 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import Any, ClassVar, Dict, List, Optional, Sequence, Set, Type, TypeVar
+from typing import (Any, ClassVar, Dict, List, Optional, Sequence, Set, Tuple,
+                    Type, TypeVar)
+
+from .event_bus import EventBus
 
 T = TypeVar("T")
 C = TypeVar("C", bound="Component")
+
+# ─── 系统相位 ───────────────────────────────────────
+#: 相位顺序固定为 pre → update → post，**优先于 priority**。
+#: priority 只在同一相位内部决定先后。
+PHASE_PRE = "pre"
+PHASE_UPDATE = "update"
+PHASE_POST = "post"
+PHASE_ORDER: Tuple[str, ...] = (PHASE_PRE, PHASE_UPDATE, PHASE_POST)
 
 # ─── 实体 ID 分配 ───────────────────────────────────
 # World 持有实例级自增计数器（见 World._next_entity_id），
@@ -171,8 +182,11 @@ class System(ABC):
                     pos.x += vel.dx * dt
     """
 
-    # 类级属性说明：子类可定义 priority 和 required_components
+    # 类级属性说明：子类可定义 phase / priority / required_components
     priority: ClassVar[int] = 100
+    #: 所属相位（``pre`` / ``update`` / ``post``），缺省 ``update``。
+    #: ``pre`` 适合输入采样与时间推进，``post`` 适合表现层同步/清理。
+    phase: ClassVar[str] = PHASE_UPDATE
 
     @abstractmethod
     def update(self, world: "World", dt: float) -> None:
@@ -303,6 +317,9 @@ class World:
 
         # 全局共享数据
         self._data: Dict[str, Any] = {}
+
+        # 事件总线：系统内用 emit_deferred() 排队，World.update 在相位边界 flush
+        self.events = EventBus()
 
         # 组件倒排索引：组件类型 -> {entity.id: Entity}。
         # 查询时先取"最小的那个桶"再逐个校验，避免每次都全表扫描（1 万实体 3 组件
@@ -467,6 +484,9 @@ class World:
         用法：
             world.add_system(MovementSystem()).add_system(RenderSystem())
         """
+        phase = getattr(system, "phase", PHASE_UPDATE)
+        if phase not in PHASE_ORDER:
+            raise ValueError(f"未知系统相位 {phase!r}；可选 {PHASE_ORDER}")
         self.systems.append(system)
         self._systems_sorted = False
         return self
@@ -494,7 +514,9 @@ class World:
     def _ensure_systems_sorted(self) -> None:
         """延迟排序：仅在需要时才按优先级排序系统列表。"""
         if not self._systems_sorted:
-            self.systems.sort(key=lambda s: s.priority)
+            # 先相位、后 priority；同键保持插入顺序（sort 是稳定的）
+            self.systems.sort(key=lambda s: (PHASE_ORDER.index(getattr(s, "phase", PHASE_UPDATE)),
+                                             s.priority))
             self._systems_sorted = True
 
     # ── 组件查询 ──────────────────────────────────────
@@ -605,12 +627,18 @@ class World:
             dt: 帧间隔时间（秒）
         """
         self._ensure_systems_sorted()
-        for system in self.systems:
-            if system.enabled(self):
-                system.update(self, dt)
-        # 系统里排队的结构变更在这里统一落地：遍历期间不改容器，就没有
-        # "dict changed size during iteration" 这类问题
-        self.commands.flush()
+        for phase in PHASE_ORDER:
+            for system in self.systems:
+                if getattr(system, "phase", PHASE_UPDATE) != phase:
+                    continue
+                if system.enabled(self):
+                    system.update(self, dt)
+            # 相位边界：结构变更在这里统一落地（遍历期间不改容器，就没有
+            # "dict changed size during iteration"），延迟事件也在这里派发。
+            # 于是 post 系统能看到 update 阶段的增删，而 update 阶段的系统
+            # 不会在遍历中途被自己 emit 的回调打断。
+            self.commands.flush()
+            self.events.flush_deferred()
 
     def flush_commands(self) -> int:
         """手动落地 ``commands`` 里排队的结构变更（返回生效条数）。

@@ -31,6 +31,20 @@
 
 ### Added
 
+- **系统相位 + 延迟事件（2026-10-20）**：解决"系统遍历时被自己触发的事件回头改容器"。
+  - `System.phase` ∈ `pre` / `update` / `post`（缺省 `update`）。排序键改为
+    **先相位、后 priority**——相位是硬顺序，priority 只在相位内部起作用。
+    `add_system()` 对未知相位直接抛 `ValueError`（不拖到运行时才炸）。
+  - `World.update()` 按相位推进，并在**每个相位边界**做两件事：
+    `commands.flush()`（结构变更落地）与 `events.flush_deferred()`。
+    于是 post 系统能看到 update 阶段的增删，而同相位内的系统仍看不到彼此
+    未落地的增删（保持原先"遍历期间容器不变"的保证）。
+  - `World.events`：每个 World 自带一个 `EventBus`。
+  - `EventBus.emit_deferred()` / `flush_deferred()` / `pending_deferred` / `clear_deferred()`：
+    延迟队列在 flush 期间新入队的事件留到下一轮，不会无限递归。
+  - 兼容性：不使用 `phase` 的系统行为与以前完全一致（全部落在 `update` 相位，
+    仅按 priority 排序）；原有 538 项测试全绿，新增 15 项后套件 553 项。
+
 - **worldspec → MapGraph（2026-10-20）**：玩法层从此能直接吃 worldbuilder 的产物，
   且**不 import worldbuilder**（只读文件，守"复制优于共享"）。
   - `MapGraph.from_worldspec(dir)`：优先读 `graph.json`（含路网与过河点），

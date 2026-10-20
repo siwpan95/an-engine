@@ -131,6 +131,10 @@ class EventBus:
         self._max_recursion_depth: int = 5
         self._event_log: List[Dict[str, Any]] = []
         self._log_max_size: int = 1000
+        # 延迟派发队列：emit_deferred() 只入队，flush_deferred() 才真正通知。
+        # 用途见 emit_deferred 的 docstring。
+        self._deferred: List[tuple] = []
+        self._flushing_deferred: bool = False
 
     # ── 订阅 / 取消订阅 ──────────────────────────────
 
@@ -284,6 +288,48 @@ class EventBus:
 
         return count
 
+    def emit_deferred(self, event_type: str, data: Any = None) -> None:
+        """把事件排进延迟队列，等 ``flush_deferred()`` 再派发。
+
+        为什么需要：系统在 ``update`` 里 ``emit``，监听器可能立刻回调到同一个系统，
+        形成"A 触发 B、B 又回头改 A 正在遍历的容器"的重入。排队到相位边界统一派发，
+        一次遍历里的事件就不会互相打断。
+
+        用法：
+            world.events.emit_deferred("entity_died", {"id": e.id})
+            # World.update() 在相位边界自动 flush；单独用时手动调 flush_deferred()
+        """
+        self._deferred.append((event_type, data))
+
+    def flush_deferred(self) -> int:
+        """派发延迟队列里的事件，返回实际执行过的派发次数。
+
+        防重入：flush 期间新入队的事件留到**下一轮**（不会在本次循环里被吃掉，
+        也不会无限递归）。
+        """
+        if self._flushing_deferred or not self._deferred:
+            return 0
+        batch, self._deferred = self._deferred, []
+        self._flushing_deferred = True
+        notified = 0
+        try:
+            for event_type, data in batch:
+                notified += self.emit(event_type, data)
+        finally:
+            self._flushing_deferred = False
+        return notified
+
+    @property
+    def pending_deferred(self) -> int:
+        """延迟队列里还没派发的事件数。"""
+        return len(self._deferred)
+
+    def clear_deferred(self) -> int:
+        """丢弃延迟队列（返回丢弃条数）。场景切换时用。"""
+        n = len(self._deferred)
+        self._deferred.clear()
+        return n
+
     def publish(self, event_type: str, **kwargs: Any) -> int:
         """
         以关键字参数形式发布事件，返回通知监听器数量。
@@ -367,6 +413,7 @@ class EventBus:
             self.listeners.pop(event_type, None)
         else:
             self.listeners.clear()
+            self._deferred.clear()
 
     # ── 查询 ──────────────────────────────────────────
 
@@ -428,4 +475,5 @@ class EventBus:
 
     def __repr__(self) -> str:
         total = self.total_listeners()
-        return f"EventBus({len(self.listeners)} events, {total} listeners)"
+        pending = f", {len(self._deferred)} pending" if self._deferred else ""
+        return f"EventBus({len(self.listeners)} events, {total} listeners{pending})"

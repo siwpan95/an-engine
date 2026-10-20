@@ -333,6 +333,24 @@ from allin_engine.test.test_trpg import (
     test_trpg_mount_missing_inject_fails, test_trpg_context_repr,
 )
 
+from allin_engine.test.test_system_phases import (
+    test_phase_order_beats_priority,
+    test_priority_only_orders_within_phase,
+    test_default_phase_is_update,
+    test_unknown_phase_rejected_on_add,
+    test_disabled_system_skipped_in_any_phase,
+    test_commands_flushed_between_phases,
+    test_same_phase_commands_still_deferred_to_phase_end,
+    test_deferred_event_not_delivered_synchronously,
+    test_deferred_event_visible_in_next_phase,
+    test_flush_deferred_returns_notification_count,
+    test_events_queued_during_flush_wait_for_next_round,
+    test_clear_deferred,
+    test_clear_all_drops_pending,
+    test_world_has_event_bus,
+    test_sync_emit_still_immediate,
+)
+
 from allin_engine.test.test_map_graph_worldspec import (
     test_load_nodes_edges_and_metadata,
     test_route_prefers_short_weight_not_hop_count,
@@ -674,6 +692,22 @@ all_tests = [
     test_trpg_waterfall_short_circuit, test_trpg_effect_d20_semantics,
     test_trpg_serial_order, test_trpg_duplicate_service_fails_loud,
     test_trpg_mount_missing_inject_fails, test_trpg_context_repr,
+    # 系统相位 + 延迟事件 (15) —— 相位硬顺序 / 相位边界 flush / 防重入
+    test_phase_order_beats_priority,
+    test_priority_only_orders_within_phase,
+    test_default_phase_is_update,
+    test_unknown_phase_rejected_on_add,
+    test_disabled_system_skipped_in_any_phase,
+    test_commands_flushed_between_phases,
+    test_same_phase_commands_still_deferred_to_phase_end,
+    test_deferred_event_not_delivered_synchronously,
+    test_deferred_event_visible_in_next_phase,
+    test_flush_deferred_returns_notification_count,
+    test_events_queued_during_flush_wait_for_next_round,
+    test_clear_deferred,
+    test_clear_all_drops_pending,
+    test_world_has_event_bus,
+    test_sync_emit_still_immediate,
     # worldspec → MapGraph (12) —— 玩法层读契约：节点元数据 / 边权最短路 / 悬空边降级
     test_load_nodes_edges_and_metadata,
     test_route_prefers_short_weight_not_hop_count,
