@@ -104,4 +104,6 @@ allin_engine = [
     "media/*.md",
     # TRPG 黄金样例验收基线（自 siwpan/d20 并入）
     "trpg/samples/*.txt",
+    # TRPG 数据来源登记（署名与许可边界，随包分发）
+    "trpg/docs/*.md",
 ]
