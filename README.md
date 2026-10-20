@@ -14,19 +14,27 @@
 
 ## 架构分层
 
+单一布局：**代码全部在 `allin_engine/` 包内**。
+2026-10-20 收口前，本仓曾把整个仓库根复制一份到 `allin_engine/`（为发 PyPI），
+之后靠"双写"维持两份一致；现已下线镜像，仓库根只保留发行与治理文件
+（README / LICENSE / CHANGELOG / SKILL / pyproject / `alloy` 兼容包 / `web` 实验区）。
+`test_layout.py` 是这条决定的机械门禁。
+
 ```
-core/      ECS + EventBus + Config + FixedTimestepLoop  ← 所有项目必用，零硬依赖
-world/     世界模型 (状态/地图/物品/角色)      ← 游戏数据层，可序列化
-systems/   游戏系统 (战斗/谜题/背包/存档/Mod)   ← 游戏逻辑层
-render/    渲染 (终端/GUI/动画/公式引擎)       ← 表现层
-audio/     音频 (合成/音乐/音效)              ← 依赖 numpy/scipy
-fx/        粒子特效                          ← 依赖 numpy
-ai/        智能 (叙事/对话/AI生成)            ← 可选 requests/ollama
-ai/decision/ 决策范式 (状态机/行为树/决策树/差分引擎/ECS脑) ← 零依赖
-media/     媒体子系统 (公式引擎/效果原语/CA 规则引擎)  ← numpy 可选 asteval（J2 S2/S3 并入）
-trpg/      TRPG 规则内核 (自 D20 并入: D&D-GURPS 角色构建)  ← 零依赖
-test/      测试工具 (自定义框架)              ← 零依赖
-utils/     通用工具 (JSON/日志/字体/文本)      ← 零依赖
+allin_engine/core/      ECS + EventBus + Config + FixedTimestepLoop  ← 所有项目必用，零硬依赖
+allin_engine/world/     世界模型 (状态/地图/物品/角色)      ← 游戏数据层，可序列化
+allin_engine/systems/   游戏系统 (战斗/谜题/背包/存档/Mod)   ← 游戏逻辑层
+allin_engine/render/    渲染 (终端/GUI/动画/公式引擎)       ← 表现层
+allin_engine/audio/     音频 (合成/音乐/音效)              ← 依赖 numpy/scipy
+allin_engine/fx/        粒子特效                          ← 依赖 numpy
+allin_engine/ai/        智能 (叙事/对话/AI生成)            ← 可选 requests/ollama
+allin_engine/ai/decision/ 决策范式 (状态机/行为树/决策树/差分引擎/ECS脑) ← 零依赖
+allin_engine/media/     媒体子系统 (公式引擎/效果原语/CA 规则引擎)  ← numpy 可选 asteval（J2 S2/S3 并入）
+allin_engine/trpg/      TRPG 规则内核 (自 D20 并入: D&D-GURPS 角色构建)  ← 零依赖
+allin_engine/test/      测试工具 (自定义框架)              ← 零依赖
+allin_engine/utils/     通用工具 (JSON/日志/字体/文本)      ← 零依赖
+allin_engine/example_*.py  可运行示例（quickstart / decision_ai / local_font）
+alloy/                  兼容别名包（旧导入名，随包分发）
 ```
 
 ## 引擎整合声明（J2 · 2026-08-25）

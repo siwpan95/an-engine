@@ -333,6 +333,21 @@ from allin_engine.test.test_trpg import (
     test_trpg_mount_missing_inject_fails, test_trpg_context_repr,
 )
 
+from allin_engine.test.test_layout import (
+    test_no_root_mirror_dirs, test_no_root_mirror_files,
+    test_no_root_file_fossils_in_package, test_packages_find_still_scoped,
+)
+
+from allin_engine.test.test_world_serial_migration import (
+    test_to_dict_carries_schema, test_legacy_save_without_schema_loads,
+    test_unknown_component_is_reported_not_silent, test_legacy_payload_missing_keys,
+    test_future_version_rejected, test_schema_name_mismatch_rejected,
+    test_bad_version_type_rejected, test_missing_migration_path_raises,
+    test_migrate_chain_to_target_2, test_from_dict_accepts_custom_migration,
+    test_register_migration_rejects_duplicate, test_register_migration_rejects_skip,
+    test_migration_returning_non_dict_rejected,
+)
+
 
 all_tests = [
     # core (19)
@@ -628,6 +643,17 @@ all_tests = [
     test_trpg_waterfall_short_circuit, test_trpg_effect_d20_semantics,
     test_trpg_serial_order, test_trpg_duplicate_service_fails_loud,
     test_trpg_mount_missing_inject_fails, test_trpg_context_repr,
+    # layout (4) —— 防「双写镜像」复活（2026-10-20 收口）
+    test_no_root_mirror_dirs, test_no_root_mirror_files,
+    test_no_root_file_fossils_in_package, test_packages_find_still_scoped,
+    # 存档迁移 (13) —— schema 头 + 迁移链（P0-3）
+    test_to_dict_carries_schema, test_legacy_save_without_schema_loads,
+    test_unknown_component_is_reported_not_silent, test_legacy_payload_missing_keys,
+    test_future_version_rejected, test_schema_name_mismatch_rejected,
+    test_bad_version_type_rejected, test_missing_migration_path_raises,
+    test_migrate_chain_to_target_2, test_from_dict_accepts_custom_migration,
+    test_register_migration_rejects_duplicate, test_register_migration_rejects_skip,
+    test_migration_returning_non_dict_rejected,
 ]
 
 

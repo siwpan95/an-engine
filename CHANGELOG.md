@@ -6,7 +6,39 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **布局收口：双写镜像下线（2026-10-20）** —— 本仓长期存在两套被 git 跟踪的同一份代码：
+  根侧 `core/ world/ systems/ …`（平铺布局，从工作区导入时的形态）与 `allin_engine/`
+  （包目录布局，为发 PyPI 复制而来）。二者靠"人工双写"维持一致——最近一次双写是
+  `e2f8996`（2026-10-20 12:57，3 个文件 × 2 侧）。逐文件比对（去掉 CRLF 差异）：
+  可比 5,145 个文件中 5,139 个**逐字节相同**，仅 3 个漂移、3 个只在根侧
+  （`CHANGELOG.md` / `SKILL.md` 本就属仓库根）。本次收口为**单一布局**：
+  - 代码权威侧 = `allin_engine/`（`packages.find` 只收 `allin_engine*` 与 `alloy*`）；
+  - 仓库根只保留 README / LICENSE / CHANGELOG / SKILL / pyproject / requirements /
+    `alloy/`（兼容别名包）/ `web/`（TS 实验区）/ `.github/`；
+  - 新增 `allin_engine/test/test_layout.py` 作机械门禁：根侧再出现镜像目录或旧入口、
+    包内再夹带 README/pyproject 等根文件副本，测试当场失败 —— 防双写复活。
+
+### Removed
+
+- 根侧代码镜像（5,126 个文件，-186,203 行）：`core/ world/ systems/ render/ ai/ audio/
+  fx/ utils/ trpg/ test/ media/` 与根 `__init__.py`、`__main__.py`、`cli.py`、`example_*.py`。
+  与 `allin_engine/` 逐字节相同（去行尾差异），无内容损失；迁移前已做整仓 `git bundle` 备份。
+- `allin_engine/` 内的根文件化石：`.github/`、`.gitignore`、`LICENSE`、`README.md`、
+  `pyproject.toml`、`requirements.txt` —— 整仓复制时的残留，且已落后（根 README 302 行 vs
+  包内副本 193 行；根 pyproject 3,616 字节 vs 包内 1,568 字节）。
+
 ### Added
+
+- **存档版本迁移（P0-3，2026-10-20）**：`allin_engine/core/world_serial.py` 增加 schema 头与迁移链。
+  - `to_dict()` 输出 `{"schema": {"name": "allin-engine/world", "version": 1}}`；
+  - 无 schema 头的历史存档按 **v0** 处理，由内置 `v0 -> v1` 补齐结构后反序列化；
+  - `migrate(data, target, migrations, report)` 逐版本串联，**缺迁移路径直接报错**（不再静默丢字段）；
+  - 版本高于引擎支持范围时抛 `SaveFormatError` **拒载**；
+  - `register_migration(from_version)` 供下游扩展自己的 schema；
+  - `world.load_report` 暴露 `migrated_from/steps/unknown_components/unknown_systems`，
+    未知组件不再无声消失；测试 +13。
 
 - **D20 界面壳并入（2026-10-20，siwpan/d20 仓确诊冗余后删除）**：
   D20 仓自 R2（2026-08-27）起已不含任何规则代码——`d20/` 只剩 5 个文件 77 行，全部是转发
