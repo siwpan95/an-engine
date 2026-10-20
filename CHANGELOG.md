@@ -31,6 +31,21 @@
 
 ### Added
 
+- **worldspec → MapGraph（2026-10-20）**：玩法层从此能直接吃 worldbuilder 的产物，
+  且**不 import worldbuilder**（只读文件，守"复制优于共享"）。
+  - `MapGraph.from_worldspec(dir)`：优先读 `graph.json`（含路网与过河点），
+    没有则退回 `pois.json`（只有节点、没有边）。节点 `metadata` 带
+    `x/z`（格）、`kind`、`elevation/biome/slope`、`tile_m`。
+  - `MapGraph.edges` + `add_edge/edge_info/edge_length`：边权（路长）与折线；
+    用嵌套 dict 存以便直接 JSON 序列化。`to_dict/from_dict` 同步扩展，旧载荷仍可读。
+  - `route(start, goal)`：加权 Dijkstra（边权 = 路长），`weighted=False` 退 BFS；
+    未知节点返回 `None` 不抛异常；`ignore_locks=False` 会绕开锁定节点。
+  - `route_length()` / `nearest(x, z, kinds=...)` / `world_pos(id, meters=...)`。
+  - 悬空边默认**跳过并记进 `load_report`**（玩法层不该因一条坏边整图报废），
+    `strict=True` 时抛 `ValueError`（CI 用）。
+  - 兼容性：`MapGraph` 新增 2 个带默认值的字段（`edges` / `load_report`），
+    `MapGraph()`、`add_node`、`move_to` 等既有用法一字未改；套件 526 → 538 全绿。
+
 - **ECS 存储 v2（P0-1 / P0-2，2026-10-20）**：`allin_engine/core/ecs.py`。
   - **组件倒排索引**：`World._comp_index`（组件类型 → {id: Entity}），查询先取"最小的那个桶"
     再逐个校验。20k 实体、1% 持有稀组件时，`get_entities_with_components` 从全表扫描的

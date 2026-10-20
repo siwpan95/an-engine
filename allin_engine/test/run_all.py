@@ -333,6 +333,21 @@ from allin_engine.test.test_trpg import (
     test_trpg_mount_missing_inject_fails, test_trpg_context_repr,
 )
 
+from allin_engine.test.test_map_graph_worldspec import (
+    test_load_nodes_edges_and_metadata,
+    test_route_prefers_short_weight_not_hop_count,
+    test_route_unknown_nodes_returns_none,
+    test_route_avoids_locked_intermediate,
+    test_pois_only_fallback_has_no_edges,
+    test_dangling_edge_skipped_by_default_and_strict_raises,
+    test_spec_version_mismatch_raises,
+    test_missing_meta_raises,
+    test_nearest_and_world_pos,
+    test_edges_survive_serialization,
+    test_remove_node_cleans_edge_tables,
+    test_manual_add_edge_rejects_unknown_endpoint,
+)
+
 from allin_engine.test.test_ecs_v2 import (
     test_query_matches_linear_scan, test_empty_types_yield_everything,
     test_first_match_and_absent_type, test_index_updates_on_component_add_remove,
@@ -659,6 +674,19 @@ all_tests = [
     test_trpg_waterfall_short_circuit, test_trpg_effect_d20_semantics,
     test_trpg_serial_order, test_trpg_duplicate_service_fails_loud,
     test_trpg_mount_missing_inject_fails, test_trpg_context_repr,
+    # worldspec → MapGraph (12) —— 玩法层读契约：节点元数据 / 边权最短路 / 悬空边降级
+    test_load_nodes_edges_and_metadata,
+    test_route_prefers_short_weight_not_hop_count,
+    test_route_unknown_nodes_returns_none,
+    test_route_avoids_locked_intermediate,
+    test_pois_only_fallback_has_no_edges,
+    test_dangling_edge_skipped_by_default_and_strict_raises,
+    test_spec_version_mismatch_raises,
+    test_missing_meta_raises,
+    test_nearest_and_world_pos,
+    test_edges_survive_serialization,
+    test_remove_node_cleans_edge_tables,
+    test_manual_add_edge_rejects_unknown_endpoint,
     # ECS 存储 v2 (20) —— 组件倒排索引 / 实体代际 / 结构变更队列
     test_query_matches_linear_scan, test_empty_types_yield_everything,
     test_first_match_and_absent_type, test_index_updates_on_component_add_remove,
