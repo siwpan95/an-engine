@@ -4,7 +4,7 @@ D&D-GURPS 变体角色构建器（D20，G:\\local\\D20）的规则内核：属�
 天赋/技术/种族/背景/专长/技能/骰子/衍生/法术位/休整/战斗宏/角色卡 14 个子系统
 + 数据中枢，运行在 allin_engine 的可逆装配内核（Context + EventBus）之上。
 
-数据中枢：allin_engine.trpg.data（融合 D&D 三宝书与 GURPS Basic Set，单一事实来源）。
+数据中枢：allin_engine.trpg.data（数值参照 SRD 5.1 / CC-BY-4.0，其余自研；单一事实来源）。
 
 快速开始：
     from allin_engine.trpg import Character, preset_trpg

@@ -8,6 +8,21 @@
 
 ### Changed
 
+- **TRPG 规则数据来源登记与表述纠正（2026-10-21）**：把"融合 D&D 三宝书与 GURPS
+  Basic Set"这句**不准确且有风险**的表述改掉，并把来源逐表落到纸面。
+  - 事实：`trpg/data.py` 的武器伤害骰、护甲 AC、技能/种族/背景/专长名称来自
+    **D&D 5e SRD 5.1**（Wizards of the Coast 于 2023 年以 **CC-BY-4.0** 发布），
+    重量与 CP 是本仓折算值；点数阶梯、难度成本、公式与全部描述文本为自研。
+    PHB/DMG/MM 与 GURPS Basic Set **均无开放许可**，本项目没有复制其文本或表格。
+  - 新增根 `NOTICE`（含 SRD 5.1 官方署名段 + GURPS 无关联声明）；
+    `allin_engine/trpg/docs/数据来源.md` 逐表登记 A/B/C 三类；
+    `data.py` 头、`cli.py` 横幅、`gui/app.py` 状态栏、`trpg/__init__.py` 同步改写；
+    README 许可段补充"代码 MIT / 数据 CC-BY-4.0"的边界。
+  - 新增 `test_trpg_provenance.py` 6 项门禁：data.py 必须写明 SRD 5.1 + CC-BY-4.0；
+    `trpg/` 源码不得再出现"融合……三宝书/Basic Set"；NOTICE 必须含官方署名关键词。
+  - 未解决项（已写进登记文档）：术语译名与市面中译本可能重合、中文描述短句未逐条比对 —
+    属工程判断，不是法律结论，对外分发前建议法务复核。
+
 - **布局收口：双写镜像下线（2026-10-20）** —— 本仓长期存在两套被 git 跟踪的同一份代码：
   根侧 `core/ world/ systems/ …`（平铺布局，从工作区导入时的形态）与 `allin_engine/`
   （包目录布局，为发 PyPI 复制而来）。二者靠"人工双写"维持一致——最近一次双写是

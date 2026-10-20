@@ -35,7 +35,7 @@ class CharacterBuilderApp:
         ttk.Label(self.status_frame, textvariable=self.cp_var,
                   font=("Microsoft YaHei", 14, "bold")).pack(side=tk.LEFT)
         ttk.Label(self.status_frame,
-                  text="融合 D&D 三宝书 + GURPS Basic Set",
+                  text="规则数值参照 SRD 5.1（CC-BY-4.0），其余自研",
                   foreground="#666").pack(side=tk.LEFT, padx=12)
 
         # Notebook

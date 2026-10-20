@@ -1,0 +1,36 @@
+allin-engine — 来源与许可声明
+================================
+
+本仓库**代码**以 MIT 许可发布，全文见 LICENSE。
+本文件说明**数据与第三方素材**的来源，二者适用不同的许可。
+
+TRPG 规则数据（allin_engine/trpg/）
+-----------------------------------
+武器伤害骰、护甲 AC、技能/种族/背景/专长名称等数值与名称，参照
+《System Reference Document 5.1》(SRD 5.1) 整理；其余点数阶梯、难度成本、
+公式与全部描述文本为本项目自研实现。逐表登记见
+allin_engine/trpg/docs/数据来源.md。
+
+This work includes material taken from the System Reference Document 5.1
+("SRD 5.1") by Wizards of the Coast LLC and available at
+https://dnd.wizards.com/resources/systems-reference-document.
+The SRD 5.1 is licensed under the Creative Commons Attribution 4.0
+International License available at
+https://creativecommons.org/licenses/by/4.0/legalcode.
+
+关于 GURPS
+----------
+本项目与 Steve Jackson Games 无任何关联，未获其授权，也未复制其文本或表格。
+"点数制 / 难度分级 / 战斗机动"等属于通用规则设计概念，本项目为独立实现。
+"GURPS" 是其权利人商标，此处仅用于说明设计渊源（nominative use）。
+
+关于 RPG Maker / Unity / Godot 等引擎
+-------------------------------------
+本项目在设计与实现过程中参考了若干开源或公开文档的**语义与算法**，
+未复制其代码。逐项登记（来源、版本、许可、借用范围、落点）见各仓
+docs/借鉴记账.md；本仓为 allin-engine/docs/借鉴记账.md。
+
+third-party 代码
+----------------
+运行期依赖见 pyproject.toml；可选依赖（numpy / scipy / asteval / pygame 等）
+各自遵循其原有许可，本项目不重新分发其源码。

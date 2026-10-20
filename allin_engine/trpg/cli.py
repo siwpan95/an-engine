@@ -148,7 +148,7 @@ def main():
     char = Character()
     print("=" * 50)
     print(" D&D-GURPS 变体角色构建器 v3.0")
-    print(" 融合 D&D 三宝书 + GURPS Basic Set 规则")
+    print(" 规则数值参照 SRD 5.1（CC-BY-4.0），其余自研；见根 NOTICE")
     print("=" * 50)
     while True:
         print(f"\n当前 CP: {char.cp} | HP: {char.hp()} | AC: {char.ac}")
