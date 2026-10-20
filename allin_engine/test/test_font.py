@@ -17,6 +17,8 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 
+from allin_engine.test.runner import skip_unless
+
 from allin_engine.utils.font import (
     discover_local_fonts,
     register_local_font,
@@ -32,9 +34,10 @@ from allin_engine.utils.font import (
 )
 
 
-# 依赖可用性探测（runner 无 skip 机制，缺失时测试直接 pass）
+# 依赖可用性探测（缺失时由 skip_if_missing / 显式分支处理）
 try:
     import pygame  # noqa: F401
+
     PYGAME_OK = True
 except Exception:
     PYGAME_OK = False
@@ -44,6 +47,13 @@ try:
     TK_OK = True
 except Exception:
     TK_OK = False
+
+
+# 字体**不随包分发**（见 README「本地字体加载」：单字体约 50MB，随包会让 wheel
+# 从 340KB 膨胀到 27MB）。所以「随包字体存在」这类断言在 pip 安装环境里必须记为
+# SKIP —— 记失败会让人误判成打包坏了。源码仓内 fonts/ 存在，测试照常真跑。
+_HAS_BUNDLED_FONT = bool(discover_local_fonts())
+_NO_FONT = "字体不随包分发：wheel 内不含 fonts/，该断言只在源码仓可测"
 
 
 # ══════════════════════════════════════════════════════════
@@ -57,6 +67,7 @@ def test_get_local_fonts_dir():
     assert str(d).replace("\\", "/").endswith("fonts")
 
 
+@skip_unless(_HAS_BUNDLED_FONT, _NO_FONT)
 def test_discover_local_fonts_finds_bundled():
     """扫描 fonts/ 目录能发现随包分发的字体。"""
     found = discover_local_fonts()
@@ -67,6 +78,7 @@ def test_discover_local_fonts_finds_bundled():
     assert any("baocanmou" in a.lower() for a in aliases)
 
 
+@skip_unless(_HAS_BUNDLED_FONT, _NO_FONT)
 def test_list_local_fonts_nonempty():
     """list_local_fonts 返回已注册字体。"""
     fonts = list_local_fonts()
@@ -76,6 +88,7 @@ def test_list_local_fonts_nonempty():
         assert os.path.exists(path)
 
 
+@skip_unless(_HAS_BUNDLED_FONT, _NO_FONT)
 def test_get_default_local_font_name():
     """默认本地字体别名存在。"""
     name = get_default_local_font_name()
@@ -204,6 +217,7 @@ def test_load_cjk_tk_font_local_first():
 # 别名注册 / 列出 / 缓存管理
 # ══════════════════════════════════════════════════════════
 
+@skip_unless(_HAS_BUNDLED_FONT, _NO_FONT)
 def test_register_local_font_adds_alias():
     """register_local_font 能新增别名到注册表。"""
     name = get_default_local_font_name()
@@ -214,6 +228,7 @@ def test_register_local_font_adds_alias():
     assert fonts["__test_alias__"] == path
 
 
+@skip_unless(_HAS_BUNDLED_FONT, _NO_FONT)
 def test_list_available_cjk_fonts_includes_local():
     """list_available_cjk_fonts 包含本地字体条目。"""
     results = list_available_cjk_fonts()

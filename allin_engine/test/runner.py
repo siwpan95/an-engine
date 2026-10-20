@@ -154,6 +154,28 @@ def skip_if_missing(module_name: str, reason: str | None = None) -> "Callable":
     return deco
 
 
+def skip_unless(condition: bool, reason: str = "前置条件不满足") -> "Callable":
+    """当运行期条件不成立时跳过测试。
+
+    与 ``skip_if_missing`` 的区别：这里判断的不是"某个模块在不在"，而是
+    "当前这份安装里某项资源在不在"——典型场景是**不随包分发的大体积资源**
+    （如本仓的字体）。同一个测试在源码仓里应当真跑，在 wheel 安装环境里
+    应当明确记为 SKIP，而不是失败（失败会让人误以为打包坏了）。
+
+    用法：
+        _HAS_BUNDLED_FONT = bool(discover_local_fonts())
+
+        @skip_unless(_HAS_BUNDLED_FONT, "字体不随包分发，仅在源码仓可测")
+        def test_font_bundled(): ...
+    """
+
+    def deco(fn: "Callable") -> "Callable":
+        if not condition:
+            fn.skip = reason  # type: ignore[attr-defined]
+        return fn
+    return deco
+
+
 # ============================================================
 # 测试结果
 # ============================================================

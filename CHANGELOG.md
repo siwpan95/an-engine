@@ -39,6 +39,13 @@
   - `register_migration(from_version)` 供下游扩展自己的 schema；
   - `world.load_report` 暴露 `migrated_from/steps/unknown_components/unknown_systems`，
     未知组件不再无声消失；测试 +13。
+- **`skip_unless()` 跳过守卫 + 安装环境自测修正（2026-10-20）** ——
+  字体按设计不随包分发（wheel 340KB，字体单文件约 50MB），但 `test_font.py` 里
+  `test_discover_local_fonts_finds_bundled` 等 5 条断言的是"包内至少有随包字体"，
+  于是在 `pip install allin-engine` 后跑 `allin-test` 会稳定报 5 个失败，
+  让人误判成打包坏了。现给 runner 增加 `skip_unless(condition, reason)`，
+  这 5 条在无随包字体的环境记为 **SKIP**，源码仓内仍照常真跑。
+  验证：源码仓 506/506；干净 venv 装 wheel 后 501 通过 / 0 失败 / 5 跳过。
 
 - **D20 界面壳并入（2026-10-20，siwpan/d20 仓确诊冗余后删除）**：
   D20 仓自 R2（2026-08-27）起已不含任何规则代码——`d20/` 只剩 5 个文件 77 行，全部是转发
