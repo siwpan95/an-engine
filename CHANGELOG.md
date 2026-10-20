@@ -40,7 +40,7 @@
   - `world.load_report` 暴露 `migrated_from/steps/unknown_components/unknown_systems`，
     未知组件不再无声消失；测试 +13。
 - **`skip_unless()` 跳过守卫 + 安装环境自测修正（2026-10-20）** ——
-  字体按设计不随包分发（wheel 340KB，字体单文件约 50MB），但 `test_font.py` 里
+  字体按设计不随包分发（当前 wheel 约 3.4MB，字体单文件约 50MB，随包会再涨 27MB），但 `test_font.py` 里
   `test_discover_local_fonts_finds_bundled` 等 5 条断言的是"包内至少有随包字体"，
   于是在 `pip install allin-engine` 后跑 `allin-test` 会稳定报 5 个失败，
   让人误判成打包坏了。现给 runner 增加 `skip_unless(condition, reason)`，

@@ -34,3 +34,5 @@ release/
 fonts/
 allin_engine/fonts/
 # 引擎字体（体积大，按需自备；见引擎 README「本地字体加载」）
+# python -m build 的 sdist 暂存目录（版本号会变，用通配）
+allin_engine-[0-9]*/
