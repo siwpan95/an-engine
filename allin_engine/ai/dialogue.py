@@ -27,6 +27,7 @@
 import json
 import random
 import re
+from dataclasses import dataclass, field
 from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple
@@ -579,3 +580,147 @@ class DialogueEngine:
             f"memories={self.memory_count} "
             f"rules={self.rule_count}>"
         )
+
+
+# ============================================================
+# 对话 VM（节点 / 选项 / 变量 / 存档点）
+# ============================================================
+#
+# 来源：Yarn Spinner 核心 / ink（思路档，MIT）。
+# 借用范围：**思路**（自研实现「节点图 + 选项分支 + 可变变量 + 状态存档/读档」
+# 这一层概念，不取 Yarn 的 YSPL 移植、不搬源码、不照抄其运行时结构）。
+#
+# 设计取舍：把"对话"建模成一张有向节点图，节点上挂文本行与若干选项；
+# 选项指向其它节点（或设置变量）。VM 维护「当前节点 + 变量表 + 已访问集合」
+# 作为可序列化状态，提供 save/load 存档点。
+
+
+@dataclass
+class DialogueOption:
+    """对话节点里的一个选项。"""
+
+    text: str
+    target: str
+    #: 选择该选项时设置的变量（key -> value）
+    set_vars: Dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class DialogueNode:
+    """对话图中的一个节点。"""
+
+    id: str
+    lines: List[str] = field(default_factory=list)
+    options: List[DialogueOption] = field(default_factory=list)
+    #: 进入节点时设置的变量（key -> value）
+    on_enter: Dict[str, Any] = field(default_factory=dict)
+    #: 没有选项时的自动后继（线性剧情用）
+    next: Optional[str] = None
+
+
+class DialogueVM:
+    """最小化对话虚拟机。
+
+    用法::
+        vm = DialogueVM({"start": DialogueNode("start", lines=["你好"], next="end"),
+                        "end": DialogueNode("end", lines=["再见"])})
+        vm.start("start")
+        print(vm.current_lines())   # ["你好"]
+        vm.advance()               # 走到 end（因 start.next == "end"）
+        assert not vm.is_finished()
+    """
+
+    def __init__(self, nodes: Optional[Dict[str, DialogueNode]] = None) -> None:
+        self._nodes: Dict[str, DialogueNode] = dict(nodes or {})
+        self._variables: Dict[str, Any] = {}
+        self._current: Optional[str] = None
+        self._visited: set = set()
+        self._history: List[str] = []
+
+    # ── 图构建 ────────────────────────────────────────
+    def add_node(self, node: DialogueNode) -> "DialogueVM":
+        self._nodes[node.id] = node
+        return self
+
+    def set_variable(self, key: str, value: Any) -> None:
+        self._variables[key] = value
+
+    def get_variable(self, key: str, default: Any = None) -> Any:
+        return self._variables.get(key, default)
+
+    # ── 运行 ──────────────────────────────────────────
+    def start(self, node_id: str) -> None:
+        if node_id not in self._nodes:
+            raise KeyError(f"未知对话节点: {node_id}")
+        self._current = node_id
+        self._on_enter(node_id)
+
+    def _on_enter(self, node_id: str) -> None:
+        node = self._nodes[node_id]
+        for k, v in node.on_enter.items():
+            self._variables[k] = v
+        self._visited.add(node_id)
+        self._history.append(node_id)
+
+    def current_node(self) -> Optional[DialogueNode]:
+        return self._nodes.get(self._current) if self._current else None
+
+    def current_lines(self) -> List[str]:
+        node = self.current_node()
+        return list(node.lines) if node else []
+
+    def current_options(self) -> List[DialogueOption]:
+        node = self.current_node()
+        return list(node.options) if node else []
+
+    def is_finished(self) -> bool:
+        """当前节点不存在、或当前节点既无选项又无后继即视为结束。"""
+        node = self.current_node()
+        if node is None:
+            return True
+        return not node.options and node.next is None
+
+    def choose(self, index: int) -> None:
+        """选择一个选项，跳转到其目标节点（并应用 set_vars）。"""
+        node = self.current_node()
+        if node is None:
+            raise RuntimeError("对话未开始或已结束")
+        if index < 0 or index >= len(node.options):
+            raise IndexError(f"选项序号越界: {index} / {len(node.options)}")
+        opt = node.options[index]
+        for k, v in opt.set_vars.items():
+            self._variables[k] = v
+        if opt.target not in self._nodes:
+            raise KeyError(f"选项目标节点不存在: {opt.target}")
+        self._current = opt.target
+        self._on_enter(opt.target)
+
+    def advance(self) -> None:
+        """沿 ``.next`` 走到自动后继节点（用于无选项线性剧情）。"""
+        node = self.current_node()
+        if node is None:
+            raise RuntimeError("对话未开始或已结束")
+        if node.next is None:
+            raise RuntimeError("当前节点没有自动后继（应用选项或已结束）")
+        if node.next not in self._nodes:
+            raise KeyError(f"后继节点不存在: {node.next}")
+        self._current = node.next
+        self._on_enter(node.next)
+
+    # ── 存档点 ────────────────────────────────────────
+    def save_state(self) -> dict:
+        """导出可序列化状态（存档点）。"""
+        return {
+            "variables": dict(self._variables),
+            "current": self._current,
+            "visited": sorted(self._visited),
+            "history": list(self._history),
+        }
+
+    def load_state(self, state: dict) -> None:
+        """从存档点恢复状态（不重建图本身，只恢复运行态）。"""
+        self._variables = dict(state.get("variables", {}))
+        self._current = state.get("current")
+        self._visited = set(state.get("visited", []))
+        self._history = list(state.get("history", []))
+

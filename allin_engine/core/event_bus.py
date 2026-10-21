@@ -12,12 +12,37 @@
 from __future__ import annotations
 
 import time
+from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional, Set
 
 
 # ─── 类型别名 ─────────────────────────────────────────
 
 EventHandler = Callable[[Any], None]
+
+
+# ─── 连接标志（语义对齐 Godot Object::connect，思路档 MIT）──
+#: 延迟派发：回调不立即触发，排入延迟队列，待 flush_deferred() 在相位边界统一派发。
+CONNECT_DEFERRED: int = 1
+#: 一次性：首次触发后自动断开。
+CONNECT_ONESHOT: int = 2
+
+
+@dataclass
+class _Slot:
+    """一个带标志的连接槽（用于 CONNECT_DEFERRED / CONNECT_ONESHOT）。"""
+
+    callback: EventHandler
+    oneshot: bool = False
+
+
+@dataclass
+class _DeferredCall:
+    """延迟连接槽的待派发记录。"""
+
+    event_type: str
+    data: Any
+    slot: _Slot
 
 
 # ─── 事件类型常量 ─────────────────────────────────────
@@ -135,6 +160,10 @@ class EventBus:
         # 用途见 emit_deferred 的 docstring。
         self._deferred: List[tuple] = []
         self._flushing_deferred: bool = False
+        # 延迟连接槽（CONNECT_DEFERRED）：事件 emit 时不立即调用，改入此队，
+        # 等 flush_deferred() 在相位边界统一派发（类比 Godot 的 deferred call）。
+        self._deferred_slots: Dict[str, List[_Slot]] = {}
+        self._deferred_calls: List[_DeferredCall] = []
 
     # ── 订阅 / 取消订阅 ──────────────────────────────
 
@@ -213,6 +242,48 @@ class EventBus:
         self.listeners.setdefault(event_type, []).append(wrapper)
         return callback  # type: ignore[return-value]
 
+    def connect(
+        self,
+        event_type: str,
+        callback: EventHandler,
+        *,
+        deferred: bool = False,
+        oneshot: bool = False,
+    ) -> EventHandler:
+        """订阅并支持连接标志（语义对齐 Godot ``Object::connect``）。
+
+        参数：
+            event_type: 事件类型字符串
+            callback:   事件处理函数
+            deferred:   CONNECT_DEFERRED —— 该回调不立即触发，排入延迟队列，
+                       待 ``flush_deferred()`` 在相位边界统一派发（类比 Godot 的
+                       deferred call，避免"emit 时重入正在遍历的容器"）。
+            oneshot:    CONNECT_ONESHOT —— 首次触发后自动断开。
+
+        注意：``deferred`` 与 ``once`` 的"立即触发、触发即断"是两套独立语义；
+        两者同时为 True 时，回调在延迟派发那一轮触发后即断开。未带标志的
+        ``connect`` 等价于 ``subscribe``。
+        """
+        if deferred:
+            slot = _Slot(callback, oneshot=oneshot)
+            self._deferred_slots.setdefault(event_type, []).append(slot)
+            return callback
+        if oneshot:
+            # 复用原有 once 语义（立即触发、触发即断）
+            return self.once(event_type, callback)
+        return self.subscribe(event_type, callback)
+
+    def _remove_deferred_slot(self, event_type: str, slot: _Slot) -> None:
+        """从延迟连接槽列表中移除指定槽。"""
+        lst = self._deferred_slots.get(event_type)
+        if lst is not None:
+            try:
+                lst.remove(slot)
+            except ValueError:
+                pass
+            if not lst:
+                del self._deferred_slots[event_type]
+
     def unsubscribe(self, event_type: str, callback: EventHandler) -> bool:
         """
         取消订阅。
@@ -232,6 +303,15 @@ class EventBus:
                 return True
             except ValueError:
                 pass  # 回调未注册
+        # 同时尝试从延迟连接槽移除
+        lst = self._deferred_slots.get(event_type)
+        if lst is not None:
+            before = len(lst)
+            self._deferred_slots[event_type] = [s for s in lst if s.callback is not callback]
+            if not self._deferred_slots[event_type]:
+                del self._deferred_slots[event_type]
+            if len(self._deferred_slots.get(event_type, [])) < before:
+                return True
         return False
 
     # ── 事件发射 ──────────────────────────────────────
@@ -264,6 +344,11 @@ class EventBus:
 
         # 安全复制监听器列表
         listeners = list(self.listeners.get(event_type, []))
+
+        # 延迟连接槽（CONNECT_DEFERRED）：本事件若有此类订阅，不立即调用，
+        # 入队等 flush_deferred() 在相位边界统一派发（类比 Godot 的 deferred call）。
+        for slot in self._deferred_slots.get(event_type, []):
+            self._deferred_calls.append(_DeferredCall(event_type, data, slot))
 
         if not listeners:
             return 0
@@ -302,19 +387,42 @@ class EventBus:
         self._deferred.append((event_type, data))
 
     def flush_deferred(self) -> int:
-        """派发延迟队列里的事件，返回实际执行过的派发次数。
+        """派发延迟队列里的事件与延迟连接槽，返回实际执行过的派发次数。
+
+        分两步：
+          1. 原有延迟**事件** ``emit_deferred``：重新 ``emit``（若期间又产生
+             新的延迟事件，留到下一轮，与原行为一致）。
+          2. 延迟**连接槽** ``CONNECT_DEFERRED``：本轮统一派发；oneshot 槽
+             触发后自动断开。用带上限的循环，确保本批次内产生的延迟调用也能落地。
 
         防重入：flush 期间新入队的事件留到**下一轮**（不会在本次循环里被吃掉，
         也不会无限递归）。
         """
-        if self._flushing_deferred or not self._deferred:
+        if self._flushing_deferred:
             return 0
-        batch, self._deferred = self._deferred, []
+        if not self._deferred and not self._deferred_calls:
+            return 0
         self._flushing_deferred = True
         notified = 0
         try:
+            # 1) 原有延迟事件：重新 emit
+            batch, self._deferred = self._deferred, []
             for event_type, data in batch:
                 notified += self.emit(event_type, data)
+            # 2) 延迟连接槽（本轮统一派发）
+            cap = len(self._deferred_calls) + 1000
+            while self._deferred_calls:
+                if cap <= 0:
+                    break
+                cap -= 1
+                call = self._deferred_calls.pop(0)
+                if call.slot.oneshot:
+                    self._remove_deferred_slot(call.event_type, call.slot)
+                try:
+                    call.slot.callback(call.data)
+                    notified += 1
+                except Exception as e:
+                    print(f"[EventBus] 延迟连接 {call.event_type} 回调失败: {e}")
         finally:
             self._flushing_deferred = False
         return notified
@@ -411,9 +519,16 @@ class EventBus:
         """
         if event_type:
             self.listeners.pop(event_type, None)
+            self._deferred_slots.pop(event_type, None)
+            # 顺手清掉该事件类型相关的待派发延迟调用
+            self._deferred_calls = [
+                c for c in self._deferred_calls if c.event_type != event_type
+            ]
         else:
             self.listeners.clear()
             self._deferred.clear()
+            self._deferred_slots.clear()
+            self._deferred_calls.clear()
 
     # ── 查询 ──────────────────────────────────────────
 

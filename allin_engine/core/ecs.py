@@ -15,8 +15,8 @@ import warnings
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import (Any, ClassVar, Dict, List, Optional, Sequence, Set, Tuple,
-                    Type, TypeVar)
+from typing import (Any, Callable, ClassVar, Dict, List, Optional, Sequence, Set,
+                    Tuple, Type, TypeVar)
 
 from .event_bus import EventBus
 
@@ -30,6 +30,22 @@ PHASE_PRE = "pre"
 PHASE_UPDATE = "update"
 PHASE_POST = "post"
 PHASE_ORDER: Tuple[str, ...] = (PHASE_PRE, PHASE_UPDATE, PHASE_POST)
+
+# ─── Unity 生命周期相位别名（B 类，仅思路 / 文档级语义）──────────
+# 来源：Unity ``UnityCsReference``（B 类 Companion License，**仅公开文档级语义**）。
+# 借用范围：**思路**——不复制代码、不做功能对标清单、不改下方相位执行逻辑。
+# 相位逻辑来自 bevy_ecs（已落地于 §二点九），此处只补一组「可读映射」别名，
+# 便于把既有 pre/update/post 对应到 Unity 的 Awake/Start/FixedUpdate/Update/LateUpdate。
+PHASE_AWAKE = PHASE_PRE            # 初始化，类比 Unity Awake
+PHASE_START = PHASE_PRE           # 首次更新前，类比 Unity Start（与 Awake 同落入 pre）
+PHASE_FIXED_UPDATE = PHASE_UPDATE # 固定步长更新，类比 Unity FixedUpdate
+PHASE_LATE_UPDATE = PHASE_POST    # 更新后同步/清理，类比 Unity LateUpdate
+#: 纯文档映射：既有相位 → Unity 风格标签（不参与任何逻辑判断）
+UNITY_PHASE_MAP: Dict[str, str] = {
+    PHASE_PRE: "Awake/Start",
+    PHASE_UPDATE: "FixedUpdate/Update",
+    PHASE_POST: "LateUpdate",
+}
 
 # ─── 实体 ID 分配 ───────────────────────────────────
 # World 持有实例级自增计数器（见 World._next_entity_id），
@@ -335,6 +351,15 @@ class World:
         # 结构变更队列：遍历期间要增删实体/组件时先排队，update 末尾统一落地
         self.commands = CommandBuffer(self)
 
+        # ── flecs 风格：实体关系（带类型的边）+ 观察者 ──
+        # 关系：subject 实体 id -> {relation_type: [object 实体 id, ...]}
+        # （思路档 MIT；自研，不引入 C 库、不照搬 flecs 命名/结构）
+        self._relations: Dict[int, Dict[str, List[int]]] = {}
+        # 观察者：组件类型 -> {"added"/"removed": [callback(entity, ctype), ...]}
+        self._observers: Dict[Type[Component], Dict[str, List[Callable]]] = {}
+        # 防止观察者回调内再增删组件时递归触发的重入保护
+        self._firing_observer: bool = False
+
     # ── 实体管理 ──────────────────────────────────────
 
     def create_entity(self, eid: Optional[str] = None) -> Entity:
@@ -423,6 +448,99 @@ class World:
                 self._detach(entity)
             return entity
 
+    # ── 实体关系（flecs 风格：带类型的边）──────────────
+    # 自研实现「关系 = (subject, relation_type, object)」这一层概念；
+    # 关系挂在 World 上（按实体 id 索引），不改动 Entity 的 __slots__ 与序列化契约。
+
+    def add_relation(self, subject: str | int, relation_type: str, target: str | int) -> None:
+        """建立一条带类型的关系边：subject --[relation_type]--> target。
+
+        例：``world.add_relation("goblin", "child_of", "goblin_king")``。
+        端点（subject / target）必须已存在于世界；重复同一条边被忽略。
+        """
+        subj = self.get_entity(subject)
+        obj = self.get_entity(target)
+        if subj is None or obj is None:
+            raise KeyError("关系端点不存在于世界，无法建立关系")
+        edges = self._relations.setdefault(subj.id, {}).setdefault(relation_type, [])
+        if obj.id not in edges:
+            edges.append(obj.id)
+
+    def get_relations(self, subject: str | int, relation_type: str) -> List[int]:
+        """返回 subject 在 ``relation_type`` 下指向的所有 object 实体 id。"""
+        subj = self.get_entity(subject)
+        if subj is None:
+            return []
+        return list(self._relations.get(subj.id, {}).get(relation_type, []))
+
+    def relations_of(self, subject: str | int) -> Dict[str, List[int]]:
+        """返回 subject 的全部关系（relation_type -> [object id, ...]）的副本。"""
+        subj = self.get_entity(subject)
+        if subj is None:
+            return {}
+        return {k: list(v) for k, v in self._relations.get(subj.id, {}).items()}
+
+    def relates_to(self, subject: str | int, relation_type: str, target: str | int) -> bool:
+        """判断 subject 是否通过 ``relation_type`` 指向 target。"""
+        subj = self.get_entity(subject)
+        obj = self.get_entity(target)
+        if subj is None or obj is None:
+            return False
+        return obj.id in self._relations.get(subj.id, {}).get(relation_type, [])
+
+    def remove_relation(self, subject: str | int, relation_type: str, target: str | int) -> bool:
+        """移除一条关系边；成功返回 True。"""
+        subj = self.get_entity(subject)
+        if subj is None:
+            return False
+        edges = self._relations.get(subj.id, {}).get(relation_type)
+        if edges is None:
+            return False
+        obj = self.get_entity(target)
+        oid = obj.id if obj is not None else target
+        if oid in edges:
+            edges.remove(oid)
+            if not edges:
+                del self._relations[subj.id][relation_type]
+            return True
+        return False
+
+    # ── 观察者（flecs 风格：组件增删触发回调）──────────
+    # 自研实现「observer = 对组件集的增/删做出反应的系统」这一层概念。
+
+    def add_observer(
+        self,
+        component_type: Type[Component],
+        event: str,
+        callback: Callable[[Entity, Type[Component]], None],
+    ) -> None:
+        """注册观察者：当 ``component_type`` 被 ``event``（"added"/"removed"）时调用。
+
+        ``callback(entity, component_type)``。
+        """
+        if event not in ("added", "removed"):
+            raise ValueError(f"未知 observer 事件: {event!r}（仅 added/removed）")
+        self._observers.setdefault(component_type, {}).setdefault(event, []).append(callback)
+
+    def remove_observer(
+        self,
+        component_type: Type[Component],
+        event: str,
+        callback: Callable[[Entity, Type[Component]], None],
+    ) -> bool:
+        """注销观察者；成功返回 True。"""
+        cbs = self._observers.get(component_type, {}).get(event)
+        if cbs is None:
+            return False
+        if callback in cbs:
+            cbs.remove(callback)
+            return True
+        return False
+
+    def has_observer(self, component_type: Type[Component], event: str) -> bool:
+        """是否存在针对该组件类型与事件类型的观察者。"""
+        return bool(self._observers.get(component_type, {}).get(event))
+
     # ── 组件索引（内部） ──────────────────────────────
 
     def _index_add(self, ctype: Type[Component], entity: Entity) -> None:
@@ -430,11 +548,29 @@ class World:
         if bucket is None:
             bucket = self._comp_index[ctype] = {}
         bucket[entity.id] = entity
+        # flecs 风格 observer：组件被加入时触发（重入保护，避免回调内再增删组件时嵌套触发）
+        self._fire_observers(entity, ctype, "added")
 
     def _index_discard(self, ctype: Type[Component], entity: Entity) -> None:
         bucket = self._comp_index.get(ctype)
         if bucket is not None:
             bucket.pop(entity.id, None)
+        # flecs 风格 observer：组件被移除时触发
+        self._fire_observers(entity, ctype, "removed")
+
+    def _fire_observers(self, entity: Entity, ctype: Type[Component], event: str) -> None:
+        """触发某组件类型上注册的 observer 回调（added / removed）。"""
+        if self._firing_observer:
+            return
+        cbs = self._observers.get(ctype, {}).get(event)
+        if not cbs:
+            return
+        self._firing_observer = True
+        try:
+            for cb in list(cbs):
+                cb(entity, ctype)
+        finally:
+            self._firing_observer = False
 
     def _index_entity(self, entity: Entity) -> None:
         for ctype in entity.components:
@@ -753,3 +889,6 @@ class World:
         self.systems.clear()
         self._systems_sorted = True
         self._data.clear()
+        self._relations.clear()
+        self._observers.clear()
+        self._firing_observer = False

@@ -30,7 +30,7 @@ apply 落进每次新建的 fork——同一插件多实例并存、逐实例独
 
 from __future__ import annotations
 
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 from allin_engine.core.context import Context
 
@@ -192,3 +192,171 @@ STANDARD_PRESETS = {
     "trpg": preset_trpg,
     "media": preset_media,
 }
+
+
+# ============================================================
+# 插件钩子 ABI（hookspec / hookimpl / PluginManager）
+# ============================================================
+#
+# 来源：pluggy（思路档，MIT）。
+# 借用范围：**思路**（自研实现「钩子规范 + 实现收集 + 按权重排序调用」概念，
+# 未搬 pluggy 源码、未照抄其命名 / 结构）。
+#
+# 设计：用 ``@hookspec`` 标记"钩子规范"（定义有哪些扩展点），用 ``@hookimpl``
+# 标记"钩子实现"并带 ``weight``；``PluginManager`` 收集所有实现后，按 hook 名
+# 索引、按 weight 降序调用。语义对齐 pluggy 的「先注册规范、再注册插件、按序调用」。
+
+
+class _HookSpec:
+    """钩子规范标记。"""
+
+    __slots__ = ("name",)
+
+    def __init__(self, name: str) -> None:
+        self.name = name
+
+
+class _HookImpl:
+    """钩子实现标记。"""
+
+    __slots__ = ("func", "weight")
+
+    def __init__(self, func: Callable, weight: int) -> None:
+        self.func = func
+        self.weight = weight
+
+
+def hookspec(func: Optional[Callable] = None, *, name: Optional[str] = None):
+    """标记函数为钩子规范（hook specification）。
+
+    用法::
+        @hookspec
+        def calculate_damage(ctx, raw): ...
+        # 或指定名称
+        @hookspec(name="on_damage")
+        def _calc(ctx, raw): ...
+    """
+
+    def decorate(f: Callable) -> Callable:
+        f._hookspec = _HookSpec(name or f.__name__)  # type: ignore[attr-defined]
+        return f
+
+    if func is None:
+        return decorate
+    return decorate(func)
+
+
+def hookimpl(func: Optional[Callable] = None, *, weight: int = 0):
+    """标记函数为钩子实现（hook implementation）。``weight`` 越大越先调用。
+
+    用法::
+        @hookimpl(weight=10)
+        def calculate_damage(ctx, raw): return raw * 2
+    """
+
+    def decorate(f: Callable) -> Callable:
+        f._hookimpl = _HookImpl(f, weight)  # type: ignore[attr-defined]
+        return f
+
+    if func is None:
+        return decorate
+    return decorate(func)
+
+
+class PluginManager:
+    """收集钩子实现并按权重排序调用的插件管理器（pluggy 风格自研）。"""
+
+    def __init__(self, project_name: str = "anonymous") -> None:
+        self.project_name = project_name
+        # hook 名 -> 实现列表（已按 weight 降序）
+        self._impls: Dict[str, List[_HookImpl]] = {}
+        # hook 名 -> 规范
+        self._specs: Dict[str, _HookSpec] = {}
+
+    # ── 规范 / 插件注册 ────────────────────────────────
+    def add_hookspecs(self, module_or_cls: Any) -> "PluginManager":
+        """从一个模块或类上收集所有 ``@hookspec`` 作为钩子规范。"""
+        for name in dir(module_or_cls):
+            attr = getattr(module_or_cls, name)
+            spec = getattr(attr, "_hookspec", None)
+            if spec is not None:
+                self._specs[spec.name] = spec
+        return self
+
+    @staticmethod
+    def _resolve_hookimpl(attr: Any) -> Optional[_HookImpl]:
+        """从属性（函数或绑定方法）上解析 ``@hookimpl`` 标记。
+
+        绑定方法不会转发底层函数的自定义属性，所以多探一层 ``__func__``。
+        """
+        impl = getattr(attr, "_hookimpl", None)
+        if impl is None:
+            underlying = getattr(attr, "__func__", None)
+            if underlying is not None:
+                impl = getattr(underlying, "_hookimpl", None)
+        return impl
+
+    @staticmethod
+    def _underlying(func: Callable) -> Callable:
+        """取出底层函数对象，用于跨访问的身份匹配（每次访问方法会新建绑定方法）。"""
+        return getattr(func, "__func__", func)
+
+    def register(self, plugin: Any) -> "PluginManager":
+        """从一个模块或实例上收集所有 ``@hookimpl`` 实现并登记。
+
+        实例方法会保留绑定（调用时自动传入 self）；排序按 weight 降序。
+        """
+        for name in dir(plugin):
+            attr = getattr(plugin, name)
+            impl = self._resolve_hookimpl(attr)
+            if impl is not None:
+                self._impls.setdefault(attr.__name__, []).append(_HookImpl(attr, impl.weight))
+                self._impls[attr.__name__].sort(key=lambda i: i.weight, reverse=True)
+        return self
+
+    def unregister(self, plugin: Any) -> "PluginManager":
+        """注销一个模块/实例上带 ``@hookimpl`` 的实现。"""
+        for name in dir(plugin):
+            attr = getattr(plugin, name)
+            impl = self._resolve_hookimpl(attr)
+            if impl is not None:
+                key = self._underlying(attr)
+                lst = self._impls.get(attr.__name__)
+                if lst is not None:
+                    self._impls[attr.__name__] = [
+                        i for i in lst if self._underlying(i.func) is not key
+                    ]
+                    if not self._impls[attr.__name__]:
+                        del self._impls[attr.__name__]
+        return self
+
+    # ── 调用 ────────────────────────────────────────────
+    def get_hookcaller(self, name: str) -> Callable[..., List[Any]]:
+        """返回可调用对象：调用即按 weight 降序执行所有实现，返回结果列表。"""
+        impls = self._impls.get(name, [])
+
+        def call(*args: Any, **kwargs: Any) -> List[Any]:
+            results: List[Any] = []
+            for impl in impls:
+                results.append(impl.func(*args, **kwargs))
+            return results
+
+        return call
+
+    @property
+    def hook(self) -> "_HookNamespace":
+        """动态访问 ``pm.hook.<name>(...)``，调用对应钩子的全部实现。"""
+        return _HookNamespace(self)
+
+    def has_hook(self, name: str) -> bool:
+        return name in self._impls and bool(self._impls[name])
+
+
+class _HookNamespace:
+    """``pm.hook.<name>`` 的动态命名空间。"""
+
+    def __init__(self, pm: PluginManager) -> None:
+        self._pm = pm
+
+    def __getattr__(self, name: str) -> Callable[..., List[Any]]:
+        return self._pm.get_hookcaller(name)
