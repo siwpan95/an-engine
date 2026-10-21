@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "allin-engine"
-version = "1.1.0"
+version = "1.1.1"
 description = "统一游戏引擎 — 融合 ECS、事件总线、世界模型与卡牌战斗的通用 Python 游戏引擎"
 readme = "README.md"
 license = {file = "LICENSE"}

@@ -88,12 +88,18 @@ USER_DATA_DIR: Path = _get_user_data_dir()
 # ── 只读资源目录 ──────────────────────────────────────
 
 def _get_readable_dir(subdir: str) -> Path:
-    """获取只读资源目录，优先包内，回退 ROOT。"""
+    """获取只读资源目录，优先包内，回退 ROOT。
+
+    若包内与资源根目录都不存在（pip 安装时 data/assets/config 未随包分发），
+    回退到用户数据目录并自建，保证返回的路径始终可用（与 get_fonts_dir 策略一致）。
+    """
     pkg_dir = ENGINE_DIR / subdir
-    if pkg_dir.exists():
+    if pkg_dir.is_dir():
         return pkg_dir
     root_dir = ROOT / subdir
-    return root_dir
+    if root_dir.is_dir():
+        return root_dir
+    return _get_writable_dir(subdir)
 
 
 def get_data_dir() -> Path:

@@ -37,7 +37,7 @@ def create_effect(effect_config: dict, drawer, width, height, audio):
     # 3) 旧效果类 — 尝试通过 render_system 的注册表实例化
     #    注意: 必须直接实例化，不能调用 _make_effect()，否则可能引发循环调用
     try:
-        from systems.render_system import EFFECT_REGISTRY as LEGACY_REGISTRY
+        from allin_engine.systems.render_system import EFFECT_REGISTRY as LEGACY_REGISTRY
         full_name = effect_config.get('full_name', effect_config.get('name', ''))
         entry = LEGACY_REGISTRY.get(full_name)
         if entry:
@@ -47,7 +47,7 @@ def create_effect(effect_config: dict, drawer, width, height, audio):
 
     # 4) 最后的 fallback: 尝试直接导入类名
     try:
-        import systems.render_system as rs
+        import allin_engine.systems.render_system as rs
         cls = getattr(rs, cls_name, None)
         if cls:
             params = effect_config.get('params', {}) or {}
@@ -155,10 +155,16 @@ def build_compat_registry(effects_dir: str = None) -> dict:
         effects_dir = os.path.join(
             os.path.dirname(os.path.dirname(__file__)), 'effects')
 
-    # 先加载旧注册表
-    from systems.render_system import EFFECT_REGISTRY as legacy_registry
-    from systems.render_system import load_effects as load_legacy
-    load_legacy(effects_dir)
+    # 先加载旧注册表。
+    # render_system 是原始开发仓的遗留模块（当时 systems/ 与包平级），并未随 pip 包分发；
+    # 这里改为包内限定路径 + 可选导入，缺失时优雅降级为空注册表
+    #（与 create_effect 的 try/except 策略一致），不影响下方对新增引擎效果的加载。
+    try:
+        from allin_engine.systems.render_system import EFFECT_REGISTRY as legacy_registry
+        from allin_engine.systems.render_system import load_effects as load_legacy
+        load_legacy(effects_dir)
+    except ImportError:
+        legacy_registry = {}
 
     # 扫描新增的引擎效果（class == EngineEffect 但不在旧注册表中的）
     engine_configs = load_engine_effects(effects_dir)

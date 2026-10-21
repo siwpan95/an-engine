@@ -50,7 +50,8 @@ HAS_NUMBA = False
 
 # 配方目录：pywallpaper 内置副本（自包含，随项目走；draw 已归档 2026-08-21）
 _DRAW_CANDIDATES = [
-    Path(__file__).resolve().parents[2] / "recipes",
+    Path(__file__).resolve().parents[1] / "recipes",   # allin_engine/media/recipes（实际打包位置）
+    Path(__file__).resolve().parents[2] / "recipes",   # 兼容：allin_engine/recipes
 ]
 DRAW_EFFECTS_DIR = next((str(p) for p in _DRAW_CANDIDATES if p.is_dir()), str(_DRAW_CANDIDATES[0]))
 

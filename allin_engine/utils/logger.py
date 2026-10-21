@@ -74,15 +74,15 @@ class Logger:
 
     def debug(self, msg: str, *args):
         """DEBUG 级别日志。"""
-        self._write("DEBUG", msg, *args)
+        self._write("DEBUG", msg.format(*args) if args else msg)
 
     def info(self, msg: str, *args):
         """INFO 级别日志。"""
-        self._write("INFO", msg, *args)
+        self._write("INFO", msg.format(*args) if args else msg)
 
     def warning(self, msg: str, *args):
         """WARNING 级别日志。"""
-        self._write("WARNING", msg, *args)
+        self._write("WARNING", msg.format(*args) if args else msg)
 
     def error(self, msg: str, *args, exc_info: bool = False):
         """ERROR 级别日志。

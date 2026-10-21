@@ -85,6 +85,11 @@ class Wireframe3DPrimitive(RenderPrimitive):
         elif geom == 'custom':
             self.verts = config.get('vertices', [])
             self.edges = config.get('edges', [])
+        else:
+            raise ValueError(
+                f"未知几何体: {geom!r}"
+                f"（可选 cube/hypercube/mobius/tunnel/helix/custom）"
+            )
         self._is_4d = geom == 'hypercube'
 
     def _build_tunnel(self):

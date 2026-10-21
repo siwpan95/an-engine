@@ -6,6 +6,28 @@
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-10-21
+
+> 专项压测（204 例）暴露的 5 个真缺陷修复；修复后压测 204/204 全绿。
+
+
+### Fixed
+
+- **core/paths**：`get_data_dir()` / `get_assets_dir()` / `get_config_dir()` 在 pip 安装下
+  返回并不存在的 `site-packages/{data,assets,config}`；改为当包内与资源根目录均缺失时，
+  回退到用户数据目录并自建（与 `get_fonts_dir` 策略一致），保证返回路径始终可用。
+- **media/primitives/ca.py**：`CARecipeLoader` 配方目录写的是 `parents[2]`
+  （指向不存在的 `allin_engine/recipes`），导致 4972 个内置配方一个都读不到；
+  改为优先 `parents[1]`（实际打包位置 `allin_engine/media/recipes`），并保留 `parents[2]` 兼容候选。
+- **media/effect_loader.py**：`build_compat_registry()` 与 `create_effect()` 里的
+  `from systems.render_system import ...` 顶层导入在 pip 安装下 `ModuleNotFoundError`；
+  改为包内限定路径 + 可选导入，render_system 未随包分发时优雅降级为空注册表（不再崩溃）。
+- **media/primitives/wireframe_3d.py**：未知 `geometry` 构造期不报错、draw 期
+  `AttributeError: 'edges'`；改为构造期即抛 `ValueError`（fail-fast，信息含可选值）。
+- **utils/logger.py**：`info/debug/warning` 把 `*args` 透传给只收 `(level, message)`
+  的 `_write`，带格式化参数时 `TypeError`；改为与 `error` 一致的 `str.format` 预处理。
+
+
 ## [1.1.0] - 2026-10-21
 
 > 本版把"引擎源码调研"的成果落进三个仓之后，对 an-engine 的公共 API 汇总发布：
