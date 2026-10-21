@@ -339,6 +339,7 @@ from allin_engine.test.test_trpg_provenance import (
     test_notice_has_official_srd_attribution,
     test_notice_disclaims_gurps_affiliation,
     test_readme_points_to_notice_and_audit,
+    test_audit_doc_ships_with_package,
     test_audit_doc_covers_every_data_table,
 )
 
@@ -714,12 +715,13 @@ all_tests = [
     test_trpg_waterfall_short_circuit, test_trpg_effect_d20_semantics,
     test_trpg_serial_order, test_trpg_duplicate_service_fails_loud,
     test_trpg_mount_missing_inject_fails, test_trpg_context_repr,
-    # TRPG 数据来源门禁 (6) —— SRD 署名 / 旧表述不回退
+    # TRPG 数据来源门禁 (7) —— SRD 署名 / 旧表述不回退 / 登记文档随包
     test_data_module_declares_srd_and_license,
     test_no_fusion_claims_in_trpg_sources,
     test_notice_has_official_srd_attribution,
     test_notice_disclaims_gurps_affiliation,
     test_readme_points_to_notice_and_audit,
+    test_audit_doc_ships_with_package,
     test_audit_doc_covers_every_data_table,
     # 系统读写声明 + 冲突告警 (10) —— 同相位同优先级读写重叠要显式化
     test_write_write_same_priority_conflicts,
