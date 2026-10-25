@@ -25,14 +25,19 @@ __all__ = [
     "provide_mapgraph",
     "route",
     "nearest",
+    "roll_dice",
+    "roll_d20",
+    "roll_3d6",
+    "success_chance",
 ]
 
-BRIDGE_VERSION = "1.0.0"
+BRIDGE_VERSION = "1.1.0"
 
 #: 本仓声明能满足的契约及兼容区间 —— 由组合仓在装配期校验
 SUPPORTED_CONTRACTS = {
     "gameplay_world": ">=1.0,<2.0",
     "mapgraph_source": ">=1.0,<2.0",
+    "rules_kernel": ">=1.0,<2.0",
 }
 
 
@@ -70,3 +75,33 @@ def nearest(graph, x: float, z: float, **kw):
 def route(graph, start: str, goal: str, **kw) -> List[str]:
     """最短路（转发 `MapGraph.route`）。"""
     return graph.route(start, goal, **kw)
+
+
+# ------------------------------------------------------------ 骰子系统 --
+# 数值规则来自 trpg/dice.py（SRD 5.1 / CC-BY-4.0，分发随仓携带 NOTICE）。
+def roll_dice(count: int, size: int) -> int:
+    """``count`` 个 ``size`` 面骰之和（如 ``roll_dice(3, 6)`` = 3d6）。"""
+    from .trpg.dice import roll_dice
+
+    return roll_dice(count, size)
+
+
+def roll_d20() -> int:
+    """d20 单次掷点（1~20）。"""
+    from .trpg.dice import roll_d20
+
+    return roll_d20()
+
+
+def roll_3d6():
+    """3d6；返回 ``(逐骰列表, 总和)``。"""
+    from .trpg.dice import roll_3d6
+
+    return roll_3d6()
+
+
+def success_chance(skill_level: int) -> int:
+    """给定技能等级的成功率（百分整数）。"""
+    from .trpg.dice import gurps_success_chance
+
+    return gurps_success_chance(skill_level)
