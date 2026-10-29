@@ -18,7 +18,7 @@
 2026-10-20 收口前，本仓曾把整个仓库根复制一份到 `allin_engine/`（为发 PyPI），
 之后靠"双写"维持两份一致；现已下线镜像，仓库根只保留发行与治理文件
 （README / LICENSE / CHANGELOG / SKILL / pyproject / `alloy` 兼容包 / `web` 实验区）。
-`test_layout.py` 是这条决定的机械门禁。
+布局不变量由 `allin_engine/test/test_layout.py` 这套机械门禁守护（检查「根目录无镜像目录/文件、包内无根目录文件化石、setuptools 包发现仍只收 `allin_engine*` 与 `alloy*`」），并通过控制台入口 **`allin-test`**（`allin_engine.test.run_all:main`）驱动；仓库根不再保留独立的 `test_layout.py` 脚本。
 
 ```
 allin_engine/core/      ECS + EventBus + Config + FixedTimestepLoop  ← 所有项目必用，零硬依赖
